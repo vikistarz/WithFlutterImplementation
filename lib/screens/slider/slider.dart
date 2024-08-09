@@ -27,62 +27,62 @@ class _SliderPageState extends State<SliderPage> {
                          CarouselSlider(items: [
                            Container(
                                  decoration:  BoxDecoration(
-                                   image: DecorationImage(image: AssetImage("images/slider_hammer.png"), fit: BoxFit.cover),
+                                   image: DecorationImage(image: AssetImage("images/slider_hammer.jpg"), fit: BoxFit.cover),
                                  ),
-                                child: Align(
-                                  alignment: Alignment.bottomLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 20.0, top: 570),
-                                 child: Column(
-                                     children: [
-                                       Text("Connect With", style: TextStyle(color: Colors.white, fontSize: 28.0),),
-                                       Text("Service Providers", style: TextStyle(color: Colors.white, fontSize: 28.0),),
-                                       Text("Find, Hire and Connect with Service Providers near you....", style: TextStyle(color: Colors.white, fontSize: 10.0),),
-                                     ],
-                                     ),
-                                  ),
-                                ),
+                                // child: Align(
+                                //   alignment: Alignment.bottomLeft,
+                                //   child: Padding(
+                                //     padding: const EdgeInsets.only(left: 20.0, top: 570),
+                                //  child: Column(
+                                //      children: [
+                                //        Text("Connect With", style: TextStyle(color: Colors.white, fontSize: 28.0),),
+                                //        Text("Service Providers", style: TextStyle(color: Colors.white, fontSize: 28.0),),
+                                //        Text("Find, Hire and Connect with Service Providers near you....", style: TextStyle(color: Colors.white, fontSize: 10.0),),
+                                //      ],
+                                //      ),
+                                //   ),
+                                // ),
                                  ),
 
 
                             Container(
                                decoration:  BoxDecoration(
-                                 image: DecorationImage(image: AssetImage("images/slider_house.png"), fit: BoxFit.cover),
+                                 image: DecorationImage(image: AssetImage("images/slider_house.jpg"), fit: BoxFit.cover),
                                ),
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 20.0, top: 570),
-                                  child: Column(
-                                 children: [
-                                 Text("Let Your Voice", style: TextStyle(color: Colors.white, fontSize: 28.0),),
-                                 Text("Here even a Mason has a voice. Scale up and", style: TextStyle(color: Colors.white, fontSize: 10.0),),
-                                 Text("become that next big thing to happen", style: TextStyle(color: Colors.white, fontSize: 10.0),)
-                                 ],
-                                ),
-                                 ),
-                              ),
+                              // child: Align(
+                              //   alignment: Alignment.bottomLeft,
+                              //   child: Padding(
+                              //     padding: const EdgeInsets.only(left: 20.0, top: 570),
+                              //     child: Column(
+                              //    children: [
+                              //    Text("Let Your Voice", style: TextStyle(color: Colors.white, fontSize: 28.0),),
+                              //    Text("Here even a Mason has a voice. Scale up and", style: TextStyle(color: Colors.white, fontSize: 10.0),),
+                              //    Text("become that next big thing to happen", style: TextStyle(color: Colors.white, fontSize: 10.0),)
+                              //    ],
+                              //   ),
+                              //    ),
+                              // ),
                              ),
 
 
                             Container(
                                decoration:  BoxDecoration(
-                                 image: DecorationImage(image: AssetImage("images/slider_people.png"), fit: BoxFit.cover),
+                                 image: DecorationImage(image: AssetImage("images/slider_people.jpg"), fit: BoxFit.cover),
                                ),
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child:  Padding(
-                                  padding: const EdgeInsets.only(left: 20.0, top: 570),
-                                   child: Column(
-                                children: [
-                                Text("Increase Your", style: TextStyle(color: Colors.white, fontSize: 28.0),),
-                                Text("Revenue", style: TextStyle(color: Colors.white, fontSize: 28.0),),
-                                Text("We empower the well-trained Artisan and handymen by providing ", style: TextStyle(color: Colors.white, fontSize: 10.0),),
-                                Text("them with an increased revenue and a larger pool of clients", style: TextStyle(color: Colors.white, fontSize: 10.0),)
-                                 ],
-                                 ),
-                                  ),
-                              ),
+                              // child: Align(
+                              //   alignment: Alignment.bottomLeft,
+                              //   child:  Padding(
+                              //     padding: const EdgeInsets.only(left: 20.0, top: 570),
+                              //      child: Column(
+                              //   children: [
+                              //   Text("Increase Your", style: TextStyle(color: Colors.white, fontSize: 28.0),),
+                              //   Text("Revenue", style: TextStyle(color: Colors.white, fontSize: 28.0),),
+                              //   Text("We empower the well-trained Artisan and handymen by providing ", style: TextStyle(color: Colors.white, fontSize: 10.0),),
+                              //   Text("them with an increased revenue and a larger pool of clients", style: TextStyle(color: Colors.white, fontSize: 10.0),)
+                              //    ],
+                              //    ),
+                              //     ),
+                              // ),
                              ),
                          ],
                              // slider container properties
