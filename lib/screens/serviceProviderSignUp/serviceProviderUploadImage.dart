@@ -231,11 +231,12 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
             ),
 
             Padding(
+
               padding: const EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0),
               child: Center(
                 child: ElevatedButton(onPressed: () {
                   getImage(ImageSource.camera);
-                  
+
                 },
                   child: Text("Take a Picture", style: TextStyle(fontSize: 14.0),),
                   style: ElevatedButton.styleFrom(
