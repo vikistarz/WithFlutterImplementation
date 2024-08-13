@@ -66,9 +66,13 @@ class _ServiceProviderAccountFragmentState extends State<ServiceProviderAccountF
               child: Padding(
                 padding: const EdgeInsets.only(bottom:25.0, left: 45.0),
                 child: CircleAvatar(
-                  backgroundColor: HexColor("#E4DFDF"),
-                  radius: 28.0,
-                  backgroundImage: AssetImage("images/profile_white.png"),
+                  backgroundColor:Colors.white,
+                  radius: 30.0,
+                  child:  CircleAvatar(
+                    backgroundColor: HexColor("#E4DFDF"),
+                    backgroundImage: AssetImage("images/profile_white.png"),
+                    radius: 29.0,
+                  ),
                 ),
               ),
             ),

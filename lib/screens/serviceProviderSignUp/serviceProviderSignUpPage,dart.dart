@@ -1,4 +1,5 @@
 import 'package:cross_platform_application/screens/choiceScreen/choiceScreenPage.dart';
+import 'package:cross_platform_application/screens/serviceProviderSignUp/serviceProviderUploadImage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -481,7 +482,9 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
               padding: const EdgeInsets.only(top: 50.0, left: 16.0, right: 16.0),
               child: Center(
                 child: ElevatedButton(onPressed: () {
-
+                   Navigator.push(context, MaterialPageRoute(builder: (context){
+                     return ServiceProviderUploadImagePage();
+                   }));
                 },
                   child: Text("Continue", style: TextStyle(fontSize: 18.0),),
                   style: ElevatedButton.styleFrom(

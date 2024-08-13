@@ -399,15 +399,11 @@ class _ServiceProviderHomeFragmentState extends State<ServiceProviderHomeFragmen
             Row(
               children: [
                 Expanded(
-                  child:new GestureDetector(
-                    onTap: (){
-
-                    },
                     child: Container(
-                      height: 100.0,
+                      height: 105.0,
                       margin: EdgeInsets.only(top: 20.0, left: 20.0),
                       decoration: BoxDecoration(
-                        image: DecorationImage(image: AssetImage("images/profile_view_background.png",),),
+                        image: DecorationImage(image: AssetImage("images/profile_view_background.png",),fit: BoxFit.cover),
                         borderRadius: BorderRadius.all(Radius.circular(5.0)),
                       ),
                       child: Center(
@@ -442,7 +438,7 @@ class _ServiceProviderHomeFragmentState extends State<ServiceProviderHomeFragmen
                                   width: 35.0,
                                   margin: EdgeInsets.only(top: 0.0, left: 0.0),
                                   decoration: BoxDecoration(
-                                    image: DecorationImage(image: AssetImage("images/profile_view_chart.png",),),
+                                    image: DecorationImage(image: AssetImage("images/profile_view_chart.png",),fit: BoxFit.cover),
                                   ),
                                 ),
                               ],
@@ -460,7 +456,6 @@ class _ServiceProviderHomeFragmentState extends State<ServiceProviderHomeFragmen
                         ),
                       ),
                     ),
-                  ),
                 ),
 
                 SizedBox(
@@ -468,15 +463,11 @@ class _ServiceProviderHomeFragmentState extends State<ServiceProviderHomeFragmen
                 ),
 
                 Expanded(
-                  child:new GestureDetector(
-                    onTap: (){
-
-                    },
-                    child: Container(
+                  child: Container(
                       height: 105.0,
                       margin: EdgeInsets.only(top: 20.0, right: 20.0),
                       decoration: BoxDecoration(
-                        image: DecorationImage(image: AssetImage("images/view_portfolio_background.png",),),
+                        image: DecorationImage(image: AssetImage("images/view_portfolio_background.png",),fit: BoxFit.cover),
                         borderRadius: BorderRadius.all(Radius.circular(5.0)),
                       ),
                       child: Center(
@@ -501,7 +492,6 @@ class _ServiceProviderHomeFragmentState extends State<ServiceProviderHomeFragmen
                       ),
                       ),
                     ),
-                  ),
               ],
             ),
 
@@ -509,7 +499,7 @@ class _ServiceProviderHomeFragmentState extends State<ServiceProviderHomeFragmen
               padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
               child: Container(
                 height: 65.0,
-                width: 500.0,
+
                 decoration: BoxDecoration(
                   // color: Colors.black,
                    image: DecorationImage(image: AssetImage("images/booking_view.png",), fit: BoxFit.fitWidth,),
