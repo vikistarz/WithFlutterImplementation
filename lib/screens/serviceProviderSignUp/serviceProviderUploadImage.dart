@@ -235,6 +235,7 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
               child: Center(
                 child: ElevatedButton(onPressed: () {
                   getImage(ImageSource.camera);
+                  
                 },
                   child: Text("Take a Picture", style: TextStyle(fontSize: 14.0),),
                   style: ElevatedButton.styleFrom(
