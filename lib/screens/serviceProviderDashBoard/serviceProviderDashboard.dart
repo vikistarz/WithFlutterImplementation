@@ -37,7 +37,7 @@ class _ServiceProviderDashboardPageState extends State<ServiceProviderDashboardP
           child: ListView(
             children: [
               Container(
-                height: 200.0,
+                height: 160.0,
                 decoration: BoxDecoration(
                   color: HexColor("#D9D9D9"),
                 ),
@@ -45,7 +45,7 @@ class _ServiceProviderDashboardPageState extends State<ServiceProviderDashboardP
                   child: Center(
                     child: Container(
                       width: 170.0,
-                      height: 30.0,
+                      // height: 30.0,
                       decoration: BoxDecoration(
                         image: DecorationImage(image: AssetImage("images/handiwork_header.png",),),
                       ),

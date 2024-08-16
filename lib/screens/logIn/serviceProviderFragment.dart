@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 import '../choiceScreen/choiceScreenPage.dart';
+import '../forgetPassword/passwordRecovery.dart';
 import '../serviceProviderDashBoard/serviceProviderDashboard.dart';
 class ServiceProviderFragment extends StatefulWidget {
   const ServiceProviderFragment({super.key});
@@ -92,14 +93,20 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
                   ),
                 ),
 
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    margin: EdgeInsets.only(top: 20.0, right: 18.0),
-                    child: Text("Forgot Password?",style: TextStyle(color: HexColor("#5E60CE"), fontWeight: FontWeight.normal, fontSize:14.0,),),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                      return PasswordRecoveryPage();
+                    }));
+                  },
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      margin: EdgeInsets.only(top: 20.0, right: 18.0),
+                      child: Text("Forgot Password?",style: TextStyle(color: HexColor("#5E60CE"), fontWeight: FontWeight.normal, fontSize:14.0,),),
+                    ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0, bottom: 10.0),
                   child: Center(
