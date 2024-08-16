@@ -1,6 +1,7 @@
 import'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
+import '../support/support.dart';
 import 'fragment/customerAccountFragment.dart';
 import 'fragment/customerAnnouncementFragment.dart';
 import 'fragment/customerHomeFragment.dart';
@@ -36,18 +37,20 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
     child: ListView(
      children: [
        Container(
-         height: 200.0,
+         height: 160.0,
          decoration: BoxDecoration(
            color: HexColor("#D9D9D9"),
          ),
          child: DrawerHeader(
            child: Center(
              child: Container(
+               margin: EdgeInsets.only(top:50.0, bottom:50.0, left: 70.0, right: 70.0),
                width: 170.0,
-               height: 30.0,
+               // height: 30.0,
                  decoration: BoxDecoration(
-                   image: DecorationImage(image: AssetImage("images/handiwork_header.png",),),
+                   // image: DecorationImage(image: AssetImage("images/handiwork_header.png",),),
                  ),
+               child: Image(image: AssetImage("images/handiwork_header.png",),),
              ),
            ),
          ),
@@ -88,28 +91,11 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
          ),
        ),
 
-       InkWell(
-         onTap: (){
-
-         },
-         child: Container(
-           width: 150.0,
-           margin: EdgeInsets.only(top: 15, left: 20.0, bottom: 5.0),
-           child: Text("About Me", style: TextStyle(color: HexColor("#212529"), fontSize: 13.0, fontWeight: FontWeight.bold),),
-         ),
-       ),
-
-       Container(
-         height: 1.0,
-         margin: EdgeInsets.only(top: 10, left: 20.0),
-         decoration: BoxDecoration(
-             color: HexColor("#D4D4D4")
-         ),
-       ),
-
          InkWell(
            onTap: (){
-
+           Navigator.push(context, MaterialPageRoute(builder: (context){
+             return SupportPage();
+           }));
            },
            child: Container(
              width: 150.0,

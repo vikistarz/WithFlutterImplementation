@@ -7,6 +7,8 @@ import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../logIn/logIn.dart';
+
 class ServiceProviderUploadImagePage extends StatefulWidget {
   const ServiceProviderUploadImagePage({super.key});
 
@@ -32,24 +34,11 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
            this._image = imageTemporary;
          });
      }
-  //
-  // // instance of image picker
-  // final imagePicker = ImagePicker();
-  //
-  // Future getImage() async{
-  //   final image = await imagePicker.getImage(source: ImageSource.camera);
-  //   setState(() {
-  //     _image = File(image.path);
-  //   });
-  // }
 
-  @override
-  void initState() {
-    super.initState();
-    // setState(() {
-    //   uploadButtonVisible = false;
-    // });
-  }
+     void showButton(){
+       uploadButtonVisible = true;
+     }
+
 
   @override
   Widget build(BuildContext context) {
@@ -145,9 +134,7 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
                      padding: const EdgeInsets.only(top: 50.0, left: 16.0, right: 16.0),
                      child: Center(
                        child: ElevatedButton(onPressed: () {
-                         // Navigator.push(context, MaterialPageRoute(builder: (context){
-
-                         // }));
+                         showImageOptions(context);
                        },
                          child: Text("Add Photo", style: TextStyle(fontSize: 14.0),),
                          style: ElevatedButton.styleFrom(
@@ -175,9 +162,9 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
                        padding: const EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0),
                        child: Center(
                          child: ElevatedButton(onPressed: () {
-                           // Navigator.push(context, MaterialPageRoute(builder: (context){
-
-                           // }));
+                           Navigator.push(context, MaterialPageRoute(builder: (context){
+                             return LogInPage();
+                           }));
                          },
                            child: Text("Upload to Sign up", style: TextStyle(fontSize: 14.0),),
                            style: ElevatedButton.styleFrom(
@@ -209,11 +196,11 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
     );
   }
 
-  void showImageOptions( BuildContext context){
+  void showImageOptions(BuildContext context){
     showModalBottomSheet(context: context, builder: (builder){
       return SizedBox(
         width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height/3,
+        height: 250.0,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -221,22 +208,22 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
               alignment: Alignment.topRight,
               child: InkWell(
                 onTap: () {
-
+                  Navigator.pop(context);
                 },
                   child: Padding(
                     padding: const EdgeInsets.only(top: 30.0, right: 40.0),
-                    child: Text("X", style: TextStyle(fontSize: 30.0, color: Colors.black),),
-                  )
+                    child: Image(image: AssetImage("images/remove_icon.png"),width: 20.0, height: 20.0,)
+                  ),
               ),
             ),
 
             Padding(
-
-              padding: const EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0),
+              padding: const EdgeInsets.only(top: 50.0, left: 16.0, right: 16.0),
               child: Center(
                 child: ElevatedButton(onPressed: () {
+                  Navigator.pop(context);
                   getImage(ImageSource.camera);
-
+                  showButton();
                 },
                   child: Text("Take a Picture", style: TextStyle(fontSize: 14.0),),
                   style: ElevatedButton.styleFrom(
@@ -262,7 +249,9 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
               padding: const EdgeInsets.only(top: 10.0, left: 16.0, right: 16.0),
               child: Center(
                 child: ElevatedButton(onPressed: () {
+                  Navigator.pop(context);
                   getImage(ImageSource.gallery);
+                  showButton();
                 },
                   child: Text("Upload a Picture", style: TextStyle(fontSize: 14.0),),
                   style: ElevatedButton.styleFrom(

@@ -1,8 +1,11 @@
+
 import 'package:cross_platform_application/screens/choiceScreen/choiceScreenPage.dart';
 import 'package:cross_platform_application/screens/customerDashBoard/customerDashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
+
+import '../forgetPassword/passwordRecovery.dart';
 class CustomerFragment extends StatefulWidget {
   const CustomerFragment({super.key});
 
@@ -17,6 +20,17 @@ class _CustomerFragmentState extends State<CustomerFragment> {
 
   bool isVisible =  true;
   bool passwordVisible =  false;
+
+   void signIn()  {
+     showDialog(
+         context: context,
+         builder: (context) {
+           return Center(
+               child: CircularProgressIndicator());
+         },
+       );
+     Navigator.of(context).pop();
+     }
 
   @override
   Widget build(BuildContext context) {
@@ -93,22 +107,32 @@ class _CustomerFragmentState extends State<CustomerFragment> {
                    ),
                  ),
 
-               Align(
-                       alignment: Alignment.topRight,
-                         child: Container(
-                           margin: EdgeInsets.only(top: 20.0, right: 18.0),
-                           child: Text("Forgot Password?",style: TextStyle(color: HexColor("#5E60CE"), fontWeight: FontWeight.normal, fontSize:14.0,),),
-                         ),
-                     ),
+               InkWell(
+                 onTap: () {
+                   Navigator.push(context, MaterialPageRoute(builder: (context){
+                     return PasswordRecoveryPage();
+                   }));
+                 },
+                 child: Align(
+                         alignment: Alignment.topRight,
+                           child: Container(
+                             margin: EdgeInsets.only(top: 20.0, right: 18.0),
+                             child: Text("Forgot Password?",style: TextStyle(color: HexColor("#5E60CE"), fontWeight: FontWeight.normal, fontSize:14.0,),),
+                           ),
+                       ),
+               ),
 
                  Padding(
                    padding: const EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0, bottom: 10.0),
                    child: Center(
                      child: ElevatedButton(onPressed: () {
-                     Navigator.push(context, MaterialPageRoute(builder: (context){
-                       return CustomerDashboardPage();
-                     }));
-                     },
+                                  signIn();
+                                  Navigator.push(context, MaterialPageRoute(builder: (context){
+                                    return CustomerDashboardPage();
+                                  }));
+
+
+                             },
                        child: Text("Log in", style: TextStyle(fontSize: 18.0),),
                        style: ElevatedButton.styleFrom(
                          foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
