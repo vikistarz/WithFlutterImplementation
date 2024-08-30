@@ -40,6 +40,13 @@ dependencies:
   smooth_page_indicator: ^1.0.0+2
   pinput: ^1.2.0
   url_launcher: ^6.1.10
+  flutter_rating_bar: ^4.0.0
+  text_marquee: ^0.0.2
+  shared_preferences: ^2.1.0
+  file_picker: ^5.0.0
+  flutter_pdfview: ^1.0.4
+  flutter_spinkit: ^5.1.0
+  http: ^0.13.3
 
 
 
@@ -114,7 +121,18 @@ flutter:
     - images/email.png
     - images/whatsapp_icon.png
     - images/quill_paper.png
-
+    - images/verify_icon.png
+    - images/location_icon.png
+    - images/pink_background.png
+    - images/man_working.png
+    - images/cancel_circle.png
+    - images/whatsapp_white.png
+    - images/edit_pen.png
+    - images/information_square.png
+    - images/number_info.png
+    - images/log_out_icon.png
+    - images/camera.png
+    - images/choose_image.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

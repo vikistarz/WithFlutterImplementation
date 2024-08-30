@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <domain-config>
+        <domain includeSubdomains="true">handiworks.cosmossound.com.ng</domain>
+        <trust-anchors>
+          <certificates src="system"/>
+
+        </trust-anchors>
+    </domain-config>
+<!--        <base-config cleartextTrafficPermitted= "true" />-->
+    </network-security-config>
+

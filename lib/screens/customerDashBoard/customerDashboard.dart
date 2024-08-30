@@ -1,6 +1,9 @@
 import'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
+import '../../database/appPrefHelper.dart';
+import '../../database/saveValues.dart';
+import '../../dialogs/logOutDialog.dart';
 import '../support/support.dart';
 import 'fragment/customerAccountFragment.dart';
 import 'fragment/customerAnnouncementFragment.dart';
@@ -18,10 +21,17 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
   int pageIndex = 0;
 
   final pages = [
-    const CustomerHomeFragment(),
+   const CustomerHomeFragment(),
     const CustomerAnnouncementFragment(),
     const CustomerAccountFragment(),
   ];
+
+
+
+    @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +124,7 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
 
        InkWell(
          onTap: (){
-
+         _openLogOutDialog();
          },
          child: Row(
            children: [
@@ -255,4 +265,12 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
       ),
     );
   }
+
+  // open log out dialog
+  void _openLogOutDialog(){
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context, builder: (ctx) => LogOutDialog());
+  }
+
 }

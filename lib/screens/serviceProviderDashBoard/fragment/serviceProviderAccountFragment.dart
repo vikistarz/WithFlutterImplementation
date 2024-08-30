@@ -1,5 +1,7 @@
+import 'package:cross_platform_application/screens/serviceProviderDashBoard/serviceProviderProfile.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import '../../../dialogs/logOutDialog.dart';
 class ServiceProviderAccountFragment extends StatefulWidget {
   const ServiceProviderAccountFragment({super.key});
 
@@ -8,6 +10,13 @@ class ServiceProviderAccountFragment extends StatefulWidget {
 }
 
 class _ServiceProviderAccountFragmentState extends State<ServiceProviderAccountFragment> {
+
+  void _openLogOutDialog(){
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context, builder: (ctx) => LogOutDialog());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,7 +88,9 @@ class _ServiceProviderAccountFragmentState extends State<ServiceProviderAccountF
 
             InkWell(
               onTap: (){
-
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+                  return ServiceProviderProfilePage();
+                }));
               },
               child: Align(
                 alignment: Alignment.bottomLeft,
@@ -98,7 +109,7 @@ class _ServiceProviderAccountFragmentState extends State<ServiceProviderAccountF
                       Expanded(
                           child:SizedBox(
 
-                          )
+                          ),
                       ),
                       Text("View Profile",style: TextStyle(color: HexColor("#212529"), fontWeight: FontWeight.normal, fontSize:14.0,),),
                       Container(
@@ -228,9 +239,9 @@ class _ServiceProviderAccountFragmentState extends State<ServiceProviderAccountF
             ),
 
 
-            InkWell(
+            new GestureDetector(
               onTap: (){
-
+                   _openLogOutDialog();
               },
               child: Align(
                 alignment: Alignment.topCenter,

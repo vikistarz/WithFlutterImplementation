@@ -1,10 +1,12 @@
 import 'package:cross_platform_application/screens/choiceScreen/choiceScreenPage.dart';
+import 'package:cross_platform_application/screens/serviceProviderSignUp/dialogs/startTimeEndTime.dart';
 import 'package:cross_platform_application/screens/serviceProviderSignUp/serviceProviderUploadImage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-import '../../dialogs/stateOfResidenceDialog.dart';
+import '../logIn/ui/logIn.dart';
+import 'dialogs/stateOfResidenceDialog.dart';
 
 
 
@@ -17,12 +19,9 @@ class ServiceProviderSignUpPage extends StatefulWidget {
 
 class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
 
-  void _openStateOfResidenceDialog(){
-    showModalBottomSheet(
-      isScrollControlled: true,
-        context: context, builder: (ctx) => StateOfResidenceDialog());
-  }
+
   bool passwordVisible = false;
+  bool openingHourTextVisible = false;
   bool cityVisible = false;
   bool officeAddressVisible = false;
   bool subCategoryVisible = false;
@@ -84,6 +83,7 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                         hintStyle: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),
                         border: InputBorder.none
                     ),
+                     style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -108,6 +108,7 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                         hintStyle: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),
                         border: InputBorder.none
                     ),
+                      style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold)
                   ),
                 ),
               ),
@@ -132,6 +133,7 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                         hintStyle: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),
                         border: InputBorder.none
                     ),
+                      style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -151,11 +153,14 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                   child: TextFormField(
                     controller: mobile1Controller,
                     keyboardType:TextInputType.phone,
+                    maxLength: 11,
                     decoration: InputDecoration(
                         hintText: "Mobile 1",
                         hintStyle: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),
-                        border: InputBorder.none
+                        border: InputBorder.none,
+                        counterText: ''
                     ),
+                      style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -175,11 +180,14 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                   child: TextFormField(
                     controller: mobile2Controller,
                     keyboardType:TextInputType.phone,
+                    maxLength: 11,
                     decoration: InputDecoration(
                         hintText: "Mobile 2 (Optional)",
                         hintStyle: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),
-                        border: InputBorder.none
+                        border: InputBorder.none,
+                       counterText: '',
                     ),
+                      style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -196,7 +204,6 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                 },
                 child: Container(
                   height: 50.0,
-                  width:  400,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -231,7 +238,6 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                   },
                   child: Container(
                     height: 50.0,
-                    width:  400,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -278,6 +284,7 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                           hintStyle: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),
                           border: InputBorder.none
                       ),
+                        style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -292,7 +299,6 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                 },
                 child: Container(
                   height: 50.0,
-                  width:  400,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -325,7 +331,6 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                 },
                 child: Container(
                   height: 50.0,
-                  width:  400,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -355,10 +360,14 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
               child: InkWell(
                 onTap: (){
 
+                  setState(() {
+                    _openingHourDialog();
+                    openingHourTextVisible = !openingHourTextVisible;
+
+                  });
                 },
                 child: Container(
                   height: 50.0,
-                  width:  400,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -367,9 +376,24 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16.0),
-                        child: Text("Opening Hour", style: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),),
+                      Stack(
+                        children: [
+                          Visibility(
+                            visible: !openingHourTextVisible,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 16.0),
+                              child: Text("Opening Hour", style: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),),
+                            ),
+                          ),
+
+                          Visibility(
+                            visible: openingHourTextVisible,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 16.0),
+                              child: Text(openingHour == null ? "Opening Hour" : "$openingHour", style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold),),
+                            ),
+                          ),
+                        ],
                       ),
                       Container(
                         child: Padding(
@@ -414,6 +438,7 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                         ),
                         border: InputBorder.none
                     ),
+                      style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -449,6 +474,7 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                         ),
                         border: InputBorder.none
                     ),
+                      style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -473,6 +499,7 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                         hintStyle: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),
                         border: InputBorder.none
                     ),
+                      style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -489,7 +516,7 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                   child: Text("Continue", style: TextStyle(fontSize: 18.0),),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
-                    minimumSize: Size(400.0, 50.0),
+                    minimumSize: Size(MediaQuery.of(context).size.width, 50.0),
                     // fixedSize: Size(300.0, 50.0),
                     textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
                     elevation: 2,
@@ -513,13 +540,15 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(right: 15.0),
-                    child: Text("already have an account?", style: TextStyle(color: HexColor("#5E60CE"), fontSize: 15.0),),
+                    child: Text("already have an account?", style: TextStyle(color: HexColor("#212529"), fontSize: 15.0),),
                   ),
                   InkWell(
                       onTap: (){
-
+                        Navigator.push(context, MaterialPageRoute(builder: (context){
+                          return LogInPage();
+                        }));
                       },
-                      child: Text("Sign in", style: TextStyle(color: HexColor("#212529"), fontSize: 15.0),),
+                      child: Text("Sign in", style: TextStyle(color: HexColor("#5E60CE"), fontSize: 15.0),),
                   ),
                 ],
               ),
@@ -529,5 +558,33 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
       ),
     );
   }
+
+  //         state of residence
+  void _openStateOfResidenceDialog(){
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context, builder: (ctx) => StateOfResidenceDialog());
+  }
+
+    // opening hour
+  String? openingHour;
+
+  Future<void>  _openingHourDialog() async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true, // Allows the bottom sheet to expand fully
+      builder: (BuildContext context) {
+        return StartTimeEndTimeDialog();
+      },
+    );
+
+    // Handle the result from the bottom sheet
+    if (result != null) {
+      setState(() {
+        openingHour = result;
+      });
+    }
+  }
+
 }
 

@@ -67,7 +67,7 @@ class ChoiceScreenPage extends StatelessWidget {
                   child: Text("Service Providers", style: TextStyle(fontSize: 18.0),),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
-                    minimumSize: Size(400.0, 60.0),
+                    minimumSize: Size(MediaQuery.of(context).size.width, 60.0),
                     // fixedSize: Size(300.0, 50.0),
                     textStyle: TextStyle(fontSize: 14.0, fontWeight: FontWeight.normal),
                     elevation: 2,
@@ -95,7 +95,7 @@ class ChoiceScreenPage extends StatelessWidget {
                   child: Text("Customers", style: TextStyle(fontSize: 18.0),),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: HexColor("#212529"), padding: EdgeInsets.all(10.0),
-                    minimumSize: Size(400.0, 60.0),
+                    minimumSize: Size(MediaQuery.of(context).size.width, 60.0),
                     // fixedSize: Size(300.0, 50.0),
                     textStyle: TextStyle(fontSize: 14.0, fontWeight: FontWeight.normal),
                     elevation: 2,
