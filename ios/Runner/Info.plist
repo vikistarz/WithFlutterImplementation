@@ -7,6 +7,12 @@
 	<key>CFBundleDisplayName</key>
 	<string>Cross Platform Application</string>
 	<key>CFBundleExecutable</key>
+    <key>NSCameraUsageDescription</key>
+    <string>We need access to the camera to take pictures.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need access to your photo library to select images.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>We need access to save photos to your photo library.</string>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>

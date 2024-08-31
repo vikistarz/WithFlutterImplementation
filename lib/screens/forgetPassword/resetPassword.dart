@@ -1,4 +1,4 @@
-import 'package:cross_platform_application/screens/logIn/logIn.dart';
+import 'package:cross_platform_application/screens/logIn/ui/logIn.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 

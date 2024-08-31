@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-import '../customerDashBoard/fragment/customerHomeFragment.dart';
+import '../../dialogs/logOutDialog.dart';
 import 'fragment/serviceProviderAccountFragment.dart';
 import 'fragment/serviceProviderHomeFragment.dart';
 import 'fragment/serviceProviderPortfolioFragment.dart';
@@ -14,6 +14,12 @@ class ServiceProviderDashboardPage extends StatefulWidget {
 }
 
 class _ServiceProviderDashboardPageState extends State<ServiceProviderDashboardPage> {
+
+  void _openLogOutDialog(){
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context, builder: (ctx) => LogOutDialog());
+  }
 
   int pageIndex = 0;
 
@@ -129,7 +135,7 @@ class _ServiceProviderDashboardPageState extends State<ServiceProviderDashboardP
 
               InkWell(
                 onTap: (){
-
+                  _openLogOutDialog();
                 },
                 child: Row(
                   children: [

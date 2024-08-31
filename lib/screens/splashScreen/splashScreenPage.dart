@@ -10,6 +10,10 @@ class SplashScreenPage extends StatelessWidget {
       Navigator.of(context).pushReplacementNamed('/slider');
     });
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+      ) ,
       body: Center(
           child: Image(image: AssetImage("images/new_handiwork_logo.png")),
       ),

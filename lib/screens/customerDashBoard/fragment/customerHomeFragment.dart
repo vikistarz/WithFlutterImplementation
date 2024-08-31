@@ -1,10 +1,36 @@
-import 'package:cross_platform_application/dialogs/stateOfResidenceDialog.dart';
+import 'package:cross_platform_application/screens/serviceProviderSignUp/dialogs/stateOfResidenceDialog.dart';
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
-class CustomerHomeFragment extends StatelessWidget {
+
+import '../../../database/appPrefHelper.dart';
+import '../../../database/saveValues.dart';
+import '../../serviceProviderDetails/details.dart';
+class CustomerHomeFragment extends StatefulWidget {
   const CustomerHomeFragment({super.key});
+
+  @override
+  State<CustomerHomeFragment> createState() => _CustomerHomeFragmentState();
+}
+
+class _CustomerHomeFragmentState extends State<CustomerHomeFragment> {
+  String? emailAddress;
+
+  @override
+  void initState() {
+    super.initState();
+    getSavedValue();
+  }
+
+     getSavedValue() async  {
+     SaveValues mySaveValues = SaveValues();
+     String? emailValue = await mySaveValues.getString(AppPreferenceHelper.EMAIL_ADDRESS);
+     setState(() {
+       emailAddress = emailValue;
+     });
+   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +45,17 @@ class CustomerHomeFragment extends StatelessWidget {
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.only(left: 20.0, top: 10.0),
-                child: Text("How can we be of help today?",style: TextStyle(color: HexColor("#212529"), fontWeight: FontWeight.bold, fontSize:20.0,),),
+                child: Text(emailAddress ?? "",style: TextStyle(color: HexColor("#212529"), fontWeight: FontWeight.bold, fontSize:20.0,),),
               ),
             ),
 
+            // "How can we be of help today?"
+
             new GestureDetector(
               onTap: (){
-
+            Navigator.push(context, MaterialPageRoute(builder: (context){
+              return ServiceProviderDetailsPage();
+            }));
               },
               child: Container(
                 height: 40.0,

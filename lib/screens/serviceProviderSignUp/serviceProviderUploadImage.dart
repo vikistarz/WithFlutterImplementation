@@ -1,13 +1,10 @@
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../logIn/logIn.dart';
+import '../logIn/ui/logIn.dart';
 
 class ServiceProviderUploadImagePage extends StatefulWidget {
   const ServiceProviderUploadImagePage({super.key});
@@ -19,7 +16,6 @@ class ServiceProviderUploadImagePage extends StatefulWidget {
 class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadImagePage> {
 
   bool uploadButtonVisible = false;
-
 
      File? _image;
 
@@ -38,7 +34,6 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
      void showButton(){
        uploadButtonVisible = true;
      }
-
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +71,6 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
 
                 Stack(
                   children: [
-
-                    // _image != null?
                     Container(
                       width: 120.0,
                       height: 120.0,
@@ -210,25 +203,25 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
                 onTap: () {
                   Navigator.pop(context);
                 },
-                  child: Padding(
+                child: Padding(
                     padding: const EdgeInsets.only(top: 30.0, right: 40.0),
                     child: Image(image: AssetImage("images/remove_icon.png"),width: 20.0, height: 20.0,)
-                  ),
+                ),
               ),
             ),
 
             Padding(
-              padding: const EdgeInsets.only(top: 50.0, left: 16.0, right: 16.0),
+              padding: const EdgeInsets.only(top: 30.0, left: 16.0, right: 16.0),
               child: Center(
                 child: ElevatedButton(onPressed: () {
-                  Navigator.pop(context);
                   getImage(ImageSource.camera);
-                  showButton();
+                  Navigator.pop(context);
+
                 },
                   child: Text("Take a Picture", style: TextStyle(fontSize: 14.0),),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
-                    minimumSize: Size(200.0, 35.0),
+                    minimumSize: Size(200.0, 40.0),
                     // fixedSize: Size(300.0, 50.0),
                     textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
                     elevation: 2,
@@ -246,17 +239,17 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
             ),
 
             Padding(
-              padding: const EdgeInsets.only(top: 10.0, left: 16.0, right: 16.0),
+              padding: const EdgeInsets.only(top: 10.0, left: 16.0, right: 16.0, bottom: 20.0),
               child: Center(
                 child: ElevatedButton(onPressed: () {
-                  Navigator.pop(context);
                   getImage(ImageSource.gallery);
-                  showButton();
+
+                   Navigator.pop(context);
                 },
                   child: Text("Upload a Picture", style: TextStyle(fontSize: 14.0),),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
-                    minimumSize: Size(200.0, 35.0),
+                    minimumSize: Size(200.0, 40.0),
                     // fixedSize: Size(300.0, 50.0),
                     textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
                     elevation: 2,

@@ -1,6 +1,6 @@
 
-import 'package:cross_platform_application/screens/logIn/customerFragment.dart';
-import 'package:cross_platform_application/screens/logIn/serviceProviderFragment.dart';
+import 'package:cross_platform_application/screens/logIn/ui/customerFragment.dart';
+import 'package:cross_platform_application/screens/logIn/ui/serviceProviderFragment.dart';
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,7 +63,7 @@ class _LogInPageState extends State<LogInPage> {
                     height: 60.0,
                     margin: EdgeInsets.only(right: 16.0, left: 16.0, top: 25.0),
                     decoration: BoxDecoration(
-                      color: HexColor("#C9C9C9"),
+                      color: HexColor("C9C9C9"),
                       borderRadius: BorderRadius.only(topLeft: Radius.circular(30.0),
                           topRight: Radius.circular(30.0),
                           bottomRight: Radius.circular(30.0),

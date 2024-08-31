@@ -758,12 +758,15 @@ class _SupportPageState extends State<SupportPage> {
                     borderRadius: BorderRadius.all(Radius.circular(8.0)),
                     border: Border.all(color: HexColor("#5E60CE"), width: 1.0),
                   ),
-                  child:
-                  Padding(
+                  child: Padding(
                     padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0, bottom: 25.0),
                     child: Text("Our team works tirelessly to make you are visible through SEO and that clients get to engage with you.", style: TextStyle(color: HexColor("#212529"), fontSize: 10.0, fontWeight: FontWeight.normal,)),
                   ),
                 ),
+              ),
+
+              SizedBox(
+                height: 50.0,
               ),
             ],
         ),
