@@ -25,4 +25,8 @@ class AppPreferenceHelper {
 
   static final String SERVICE_PROVIDER_ID = "SERVICE_PROVIDER_ID";
 
+  static final String CUSTOMER_WALLET_ID = "CUSTOMER_WALLET_ID";
+
+  static final String SERVICE_PROVIDER_WALLET_ID = "SERVICE_PROVIDER_ID";
+
 }

@@ -1,8 +1,18 @@
+import 'dart:convert';
+
+import 'package:cross_platform_application/screens/CustomerSignUp/customerSignUpResponseModel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
 import '../../database/appPrefHelper.dart';
 import '../../database/saveValues.dart';
+import '../../dialogs/errorMessageDialog.dart';
+import '../../dialogs/successMessageDialog.dart';
 import '../logIn/ui/logIn.dart';
+import 'package:http/http.dart' as http;
+
+
+
 class CustomerSignUpPage extends StatefulWidget {
   const CustomerSignUpPage({super.key});
 
@@ -12,12 +22,14 @@ class CustomerSignUpPage extends StatefulWidget {
 
 class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
 
-  var firstName, lastName, emailAddress, homeAddress, password, confirmPassword;
   final _formKey = GlobalKey<FormState>();
   bool passwordVisible =  false;
   bool confirmPasswordVisible =  false;
   bool _isButtonEnabled = false;
   bool isLoadingVisible = true;
+  String token = "";
+  String errorMessage = "";
+  int customerWalletId = 0;
 
   // Function to validate the form and update button state
   void _validateFormField() {
@@ -32,6 +44,8 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
     }
   }
 
+  final String apiUrl = "https://server.handiwork.com.ng/api/customers/create";
+
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailAddressController = TextEditingController();
@@ -40,18 +54,126 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
   TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController homeAddressController = TextEditingController();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   passwordVisible = true;
-  //   confirmPasswordVisible =  true;
-  //   // saveGetUserDetails();
-  // }
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailAddressController.dispose();
+    phoneController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    homeAddressController.dispose();
+    super.dispose();
+  }
 
   void loading(){
     setState(() {
       isLoadingVisible = false;
     });
+  }
+
+  void isNotLoading(){
+     setState(() {
+       isLoadingVisible = true;
+     });
+  }
+
+
+  Future<void> makePostRequest() async {
+
+    loading();
+
+    try {
+      final response = await http.post(Uri.parse(apiUrl),
+          headers:<String, String>{
+        "Content-type": "application/json"
+          },
+          body: jsonEncode(<String, dynamic>{
+            "firstName": firstNameController.text,
+            "lastName": lastNameController.text,
+            "email": emailAddressController.text,
+            "password": passwordController.text,
+            "phone": phoneController.text,
+            "address": homeAddressController.text,
+          }),
+      );
+
+      if (response.statusCode == 201) {
+        isNotLoading();
+      // successful post request, handle the response here
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        setState(() {
+          token = responseData['token'];
+          customerWalletId = responseData['wallet']['id'];
+          showModalBottomSheet(
+              isScrollControlled: true,
+              context: context,
+              builder: (BuildContext context) {
+                return SuccessMessageDialog(
+                  content: "Customer Sign up Successful",
+                  onButtonPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                      return LogInPage();
+                    }));
+                    // Add any additional action here
+                    saveUserDetails();
+                  },
+                );
+              });
+        });
+      }
+
+      else{
+        isNotLoading();
+        // if the server return an error response
+        final Map<String, dynamic> errorData = json.decode(response.body);
+        errorMessage = errorData['error'] ?? 'Unknown error occurred';
+
+        showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: errorMessage,
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+      }
+    }
+    catch (e) {
+      isNotLoading();
+      setState(() {
+        showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: "Sorry no internet Connection",
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+      });
+    }
+  }
+
+
+
+
+  void saveUserDetails() async {
+
+    SaveValues mySaveValues = SaveValues();
+
+    await mySaveValues.saveInt(AppPreferenceHelper.CUSTOMER_WALLET_ID, customerWalletId!);
+
   }
 
 
@@ -104,7 +226,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
               validator: (value) {
                 final regex = RegExp(r'^[a-zA-Z]+$');
                 if (value == null || value.isEmpty) {
-                  value  = firstName;
                   return 'Please enter Last name';
                 }
                 if (value.length < 2) {
@@ -145,7 +266,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
               validator: (value) {
                 final regex = RegExp(r'^[a-zA-Z]+$');
                 if (value == null || value.isEmpty) {
-                  value  = lastName;
                   return 'Please enter Last name';
                 }
                 if (value.length < 2) {
@@ -187,7 +307,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
               validator: (value) {
                 final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                 if (value == null || value.isEmpty) {
-                  value  = emailAddress;
                   return 'Please enter email address';
                 }
                 if (value.length < 11) {
@@ -228,7 +347,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
               validator: (value) {
                 final regex = RegExp(r'^[+-]?\d+(\.\d+)?$');
                 if (value == null || value.isEmpty) {
-                  value  = emailAddress;
                   return 'Please enter phone Number';
                 }
                 if (value.length < 11) {
@@ -269,7 +387,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
             child: TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  value = homeAddress;
                   return 'Please enter Home Address';
                 }
                 else{
@@ -303,15 +420,11 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
             child: TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  value  = password;
                   return 'Please enter password';
                 }
                 if (value.length < 6) {
                   return 'must be at least 6 characters long';
                 }
-                // if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                //     return 'Please enter a valid email';
-                //         }
                 else{
                   return null; // Return null if the input is valid
                 }
@@ -354,7 +467,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
             child: TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  value  = confirmPassword;
                   return 'Please enter password';
                 }
                 if (value.length < 6) {
@@ -363,9 +475,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
                 if (value != passwordController.text) {
                   return 'Passwords do not match';
                 }
-                // if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                //     return 'Please enter a valid email';
-                //         }
                 else{
                   return null; // Return null if the input is valid
                 }
@@ -406,33 +515,69 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
       ),
     ),
 
-            Padding(
-              padding: const EdgeInsets.only(top: 50.0, left: 16.0, right: 16.0),
-              child: Center(
-                child: ElevatedButton(onPressed: _isButtonEnabled
-                    ? () {
-
-                  }
-                     : null, // Disable button if form is invalid() {
-                  child: Text("Continue", style: TextStyle(fontSize: 18.0),),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
-                    minimumSize: Size(MediaQuery.of(context).size.width, 50.0),
-                    // fixedSize: Size(300.0, 50.0),
-                    textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
-                          topRight: Radius.circular(15.0),
-                          bottomRight: Radius.circular(15.0),
-                          bottomLeft: Radius.circular(15.0)),
+            Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0, bottom: 10.0),
+                  child: Center(
+                    child: ElevatedButton(onPressed: _isButtonEnabled
+                        ? () {
+                      // Action to be taken on button press
+                     makePostRequest();
+                      // _customerSignUp();
+                    }
+                        : null, // Disable button if form is invalid() {
+                      child: Text("Log in", style: TextStyle(fontSize: 18.0),),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
+                        minimumSize: Size(MediaQuery.of(context).size.width, 50.0),
+                        // fixedSize: Size(300.0, 50.0),
+                        textStyle: TextStyle(fontSize: 14.0, fontWeight: FontWeight.normal),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
+                              topRight: Radius.circular(15.0),
+                              bottomRight: Radius.circular(15.0),
+                              bottomLeft: Radius.circular(15.0)),
+                        ),
+                        // side: BorderSide(color: Colors.black, width: 2),
+                        // alignment: Alignment.topCenter
+                      ),
                     ),
-                    // side: BorderSide(color: Colors.black, width: 2),
-                    // alignment: Alignment.topCenter
                   ),
                 ),
-              ),
+
+                Visibility(
+                  visible: !isLoadingVisible,
+                  child: Container(
+                    height: 50.0,
+                    width: MediaQuery.of(context).size.width,
+                    margin: EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0, bottom: 10.0),
+                    decoration: BoxDecoration(
+                      color: HexColor("#A7A8DC"),
+                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+
+                        SpinKitFadingCircle(
+                          color: HexColor("#F5F6F6"),
+                          size: 20.0,
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: Text("Loading",style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize:12.0,),),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              ],
             ),
+
 
             Padding(
               padding: const EdgeInsets.only(top: 20.0, bottom: 80.0),

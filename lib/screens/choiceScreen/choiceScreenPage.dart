@@ -1,5 +1,5 @@
 import 'package:cross_platform_application/screens/CustomerSignUp/customerSignUpPage.dart';
-import 'package:cross_platform_application/screens/serviceProviderSignUp/serviceProviderSignUpPage,dart.dart';
+import 'package:cross_platform_application/screens/serviceProviderSignUp/ui/serviceProviderSignUpPage,dart.dart';
 import'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 class ChoiceScreenPage extends StatelessWidget {

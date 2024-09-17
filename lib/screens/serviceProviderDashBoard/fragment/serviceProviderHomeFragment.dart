@@ -1,6 +1,8 @@
+import 'package:cross_platform_application/database/appPrefHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
+import '../../../database/saveValues.dart';
 import '../../verifyAccount/verifyAccount.dart';
 class ServiceProviderHomeFragment extends StatefulWidget {
   const ServiceProviderHomeFragment({super.key});
@@ -10,6 +12,23 @@ class ServiceProviderHomeFragment extends StatefulWidget {
 }
 
 class _ServiceProviderHomeFragmentState extends State<ServiceProviderHomeFragment> {
+
+  int? serviceProviderId;
+
+  @override
+  void initState() {
+    super.initState();
+    getSavedValue();
+  }
+
+  getSavedValue() async  {
+    SaveValues mySaveValues = SaveValues();
+   int? id = await mySaveValues.getInt(AppPreferenceHelper.SERVICE_PROVIDER_ID);
+    setState(() {
+      serviceProviderId = id;
+    });
+  }
+
 
   Future<void> _refresh() async {
     // Simulate a network request or any async task
@@ -46,7 +65,7 @@ class _ServiceProviderHomeFragmentState extends State<ServiceProviderHomeFragmen
                     alignment: Alignment.topLeft,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 20.0, top: 10.0),
-                      child: Text("How can we be of help today?",style: TextStyle(color: HexColor("#212529"), fontWeight: FontWeight.bold, fontSize:20.0,),),
+                      child: Text(serviceProviderId.toString() ?? "",style: TextStyle(color: HexColor("#212529"), fontWeight: FontWeight.bold, fontSize:20.0,),),
                     ),
                   ),
             

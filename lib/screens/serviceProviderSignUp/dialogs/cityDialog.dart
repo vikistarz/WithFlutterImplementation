@@ -7,18 +7,35 @@ import 'package:http/http.dart' as http;
 import '../../../database/appPrefHelper.dart';
 import '../../../database/saveValues.dart';
 import '../../../dialogs/errorMessageDialog.dart';
+import '../models/CityResponseModel.dart';
 import '../models/StateResponseModel.dart';
 
-class StateOfResidenceDialog extends StatefulWidget {
-  const StateOfResidenceDialog({super.key});
+class CityDialog extends StatefulWidget {
+  const CityDialog({super.key});
 
   @override
-  State<StateOfResidenceDialog> createState() => _StateOfResidenceDialogState();
+  State<CityDialog> createState() => _CityDialogState();
 }
 
-class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
+class _CityDialogState extends State<CityDialog> {
 
-  String stateCode = "";
+  String? stateCode;
+
+
+  @override
+  void initState() {
+    super.initState();
+    getSavedValue();
+  }
+
+  getSavedValue() async  {
+    SaveValues mySaveValues = SaveValues();
+    String? state_code = await mySaveValues.getString(AppPreferenceHelper.SELECTED_STATE_CODE);
+    setState(() {
+      stateCode = state_code;
+    });
+  }
+
   String errorMessage = "";
   bool isLoadingVisible = true;
 
@@ -35,48 +52,24 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
   }
 
 
-  Future<List<StatesResponseModel>> fetchState() async {
+  Future<List<CityResponseModel>> fetchState() async {
     loading();
 
     final response = await http.get(
-        Uri.parse("https://server.handiwork.com.ng/api/nigerian-states/states"));
+        Uri.parse("https://server.handiwork.com.ng/api/nigerian-states/$stateCode/cities"));
 
     if (response.statusCode == 200) {
       print('Response Body: ${response.body}');
       final jsonResponse = json.decode(response.body);
-      List<dynamic> items = jsonResponse['states'];
-      return items.map((json) => StatesResponseModel.fromJson(json)).toList();
+      List<dynamic> items = jsonResponse['cities'];
+      return items.map((json) => CityResponseModel.fromJson(json)).toList();
     }
 
     else {
       isNotLoading();
-      setState(() {
-        showModalBottomSheet(
-            isScrollControlled: true,
-            context: context,
-            builder: (BuildContext context) {
-              return ErrorMessageDialog(
-                content: "An error occurred",
-                onButtonPressed: () {
-                  Navigator.of(context).pop();
-                  // Add any additional action here
-                  // isNotLoading();
-                },
-              );
-            });
-      });
       throw Exception('Failed to load items');
     }
   }
-
-  void saveUserDetails() async {
-
-    SaveValues mySaveValues = SaveValues();
-
-    await mySaveValues.saveString(AppPreferenceHelper.SELECTED_STATE_CODE, stateCode);
-
-  }
-
 
 
   @override
@@ -128,7 +121,7 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
       child: Container(
         height: 500.0,
         margin: EdgeInsets.only(bottom: 20.0),
-        child: FutureBuilder<List<StatesResponseModel>>(
+        child: FutureBuilder<List<CityResponseModel>>(
            future: fetchState(),
            builder: (context, snapshot) {
              if (snapshot.connectionState == ConnectionState.waiting) {
@@ -138,7 +131,7 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                    visible: !isLoadingVisible,
                    child: SpinKitFadingCircle(
                    color: Colors.white,
-                   size: 40.0,),
+                   size: 50.0,),
                  ),);
              }
              else if (snapshot.hasError) {
@@ -146,53 +139,60 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                  backgroundColor: Colors.white,
                  child: Container(
                    height: 170.0,
-                     child: Column(
-                       children: [
-                         Row(
-                           children: [
-                     Padding(
-                       padding: const EdgeInsets.only(top: 40.0, left: 25.0),
-                       child: Image(image: AssetImage("images/error_icon.png"), width: 40.0, height: 40.0,),
-                     ),
+                   child: Column(
+                     children: [
+                       Row(
+                         children: [
+                           Padding(
+                             padding: const EdgeInsets.only(top: 40.0, left: 25.0),
+                             child: Image(image: AssetImage("images/error_icon.png"), width: 40.0, height: 40.0,),
+                           ),
 
-                             Padding(
-                               padding: const EdgeInsets.only(top: 15.0, left: 15.0, right: 20.0),
-                               child: Text('Sorry an error occurred', style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.normal,),),
-                             )
-                           ],
-                         ),
+                           Padding(
+                             padding: const EdgeInsets.only(top: 15.0, left: 15.0, right: 20.0),
+                             child: Text('Sorry an error occurred', style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.normal,),),
+                           )
+                         ],
+                       ),
 
-                         Padding(
-                           padding: const EdgeInsets.only(top: 15.0, left: 16.0, right: 16.0),
-                           child: Center(
-                             child: ElevatedButton(onPressed: () {
+                       Padding(
+                         padding: const EdgeInsets.only(top: 15.0, left: 16.0, right: 16.0),
+                         child: Center(
+                           child: ElevatedButton(onPressed: () {
 
-                               fetchState();
-                             },
-                               child: Text("Try Again", style: TextStyle(fontSize: 14.0),),
-                               style: ElevatedButton.styleFrom(
-                                 foregroundColor: Colors.white, backgroundColor: HexColor("#FF2121"), padding: EdgeInsets.all(10.0),
-                                 minimumSize: Size(200.0, 30.0),
-                                 // fixedSize: Size(300.0, 50.0),
-                                 textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
-                                 elevation: 2,
-                                 shape: RoundedRectangleBorder(
-                                   borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
-                                       topRight: Radius.circular(15.0),
-                                       bottomRight: Radius.circular(15.0),
-                                       bottomLeft: Radius.circular(15.0)),
-                                 ),
-                                 // side: BorderSide(color: Colors.black, width: 2),
-                                 // alignment: Alignment.topCenter
+                             fetchState();
+                           },
+                             child: Text("Try Again", style: TextStyle(fontSize: 14.0),),
+                             style: ElevatedButton.styleFrom(
+                               foregroundColor: Colors.white, backgroundColor: HexColor("#FF2121"), padding: EdgeInsets.all(10.0),
+                               minimumSize: Size(200.0, 30.0),
+                               // fixedSize: Size(300.0, 50.0),
+                               textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
+                               elevation: 2,
+                               shape: RoundedRectangleBorder(
+                                 borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
+                                     topRight: Radius.circular(15.0),
+                                     bottomRight: Radius.circular(15.0),
+                                     bottomLeft: Radius.circular(15.0)),
                                ),
+                               // side: BorderSide(color: Colors.black, width: 2),
+                               // alignment: Alignment.topCenter
                              ),
                            ),
                          ),
-                       ],
-                     ),
-                     // child: Center(child: Text('Error: ${snapshot.error}')),
+                       ),
+                     ],
+                   ),
+                   // child: Center(child: Text('Error: ${snapshot.error}')),
                  ),
                );
+               // return Dialog(
+               //   backgroundColor: Colors.white,
+               //   child: Container(
+               //     height: 200.0,
+               //       child: Center(child: Text('Error: ${snapshot.error}'))),
+               // );
+               return Center(child: Text('Error: ${snapshot.error}'));
              }
              else if(!snapshot.hasData || snapshot.data!.isEmpty){
                return Dialog(
@@ -246,7 +246,6 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                    // child: Center(child: Text('Error: ${snapshot.error}')),
                  ),
                );
-
              }
              else {
                return ListView.builder(
@@ -257,13 +256,13 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
 
                    return new GestureDetector(
                      onTap: () {
-                       stateCode = item.state_code;
-                       saveUserDetails();
+                       // String stateCode = item.state_code;
                        Navigator.pop(context, item.name);
                      },
-                     child: Padding(
-                       padding: const EdgeInsets.only(top: 15.0, left: 20.0),
-                       child: Text(item.name, style: TextStyle(color: Colors.white, fontSize: 18.0),),
+
+                       child: Padding(
+                         padding: const EdgeInsets.only(top: 15.0, left: 20.0),
+                         child: Text(item.name, style: TextStyle(color: Colors.white, fontSize: 18.0),),
                      ),
                    );
 
@@ -271,7 +270,7 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                      contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
                      title: Text(item.name, style: TextStyle(color: Colors.white, fontSize: 16.0),),
                      onTap: () {
-                       String stateCode = item.state_code;
+                       // String stateCode = item.state_code;
                        Navigator.pop(context, item.name);
                      },
                        );

@@ -1,12 +1,18 @@
+import 'dart:convert';
+
+import 'package:cross_platform_application/screens/serviceProviderDashBoard/serviceProviderDashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 import '../../../database/appPrefHelper.dart';
 import '../../../database/saveValues.dart';
+import '../../../dialogs/errorMessageDialog.dart';
+import '../../../dialogs/successMessageDialog.dart';
 import '../../choiceScreen/choiceScreenPage.dart';
 import '../../forgetPassword/passwordRecovery.dart';
-import '../../serviceProviderDashBoard/serviceProviderDashboard.dart';
+import 'package:http/http.dart' as http;
+
 class ServiceProviderFragment extends StatefulWidget {
   const ServiceProviderFragment({super.key});
 
@@ -17,11 +23,14 @@ class ServiceProviderFragment extends StatefulWidget {
 class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
 
   final _formKey = GlobalKey<FormState>();
-  var _emailPhone, _password;
   bool _isButtonEnabled = false;
-  bool isVisible =  true;
   bool isLoadingVisible = true;
   bool passwordVisible =  false;
+  String token = "";
+  String errorMessage = "";
+  int serviceProviderId = 0;
+
+
 
   // Function to validate the form and update button state
   void _validateFormField() {
@@ -36,17 +45,17 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
     }
   }
 
+  final String apiUrl = "https://server.handiwork.com.ng/api/auth/login/skill-provider";
 
-  TextEditingController emailAddressController = TextEditingController();
+  TextEditingController emailAddressPhoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
 
-  void saveUserDetails() async {
-
-    SaveValues mySaveValues = SaveValues();
-
-    await mySaveValues.saveString(AppPreferenceHelper.EMAIL_ADDRESS, emailAddressController.text);
-
+  @override
+  void dispose() {
+    emailAddressPhoneController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   void loading(){
@@ -54,6 +63,100 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
       isLoadingVisible = false;
     });
   }
+
+  void isNotLoading(){
+    setState(() {
+      isLoadingVisible = true;
+    });
+  }
+
+  Future<void> makePostRequest() async {
+    loading();
+
+    try {
+      final response = await http.post(Uri.parse(apiUrl),
+        headers:<String, String>{
+          "Content-type": "application/json"
+        },
+        body: jsonEncode(<String, dynamic>{
+          "emailOrPhone": emailAddressPhoneController.text,
+          "password": passwordController.text,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        isNotLoading();
+        // successful post request, handle the response here
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        setState(() {
+          token = responseData['token'];
+          serviceProviderId = responseData['skillProvider']['id'];
+          showModalBottomSheet(
+              isScrollControlled: true,
+              context: context,
+              builder: (BuildContext context) {
+                return SuccessMessageDialog(
+                  content: "Service Provider Sign up Successful",
+                  onButtonPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                      return ServiceProviderDashboardPage();
+                    }));
+                    // Add any additional action here
+                    saveUserDetails();
+                  },
+                );
+              });
+        });
+      }
+
+      else{
+        isNotLoading();
+        // if the server return an error response
+        final Map<String, dynamic> errorData = json.decode(response.body);
+        errorMessage = errorData['error'] ?? 'Unknown error occurred';
+
+        showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: errorMessage,
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+      }
+    }
+    catch (e) {
+      isNotLoading();
+      setState(() {
+        showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: "Sorry no internet Connection",
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+      });
+    }
+  }
+
+  void saveUserDetails() async {
+
+    SaveValues mySaveValues = SaveValues();
+    await mySaveValues.saveInt(AppPreferenceHelper.SERVICE_PROVIDER_ID, serviceProviderId);
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +182,6 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
                         child: TextFormField(
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              value  = _emailPhone;
                               return 'Please enter an email or Phone number';
                             }
                             if (value.length < 11) {
@@ -92,8 +194,8 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
                               return null; // Return null if the input is valid
                             }
                           },
-                          controller: emailAddressController,
-                          keyboardType:TextInputType.emailAddress,
+                          controller: emailAddressPhoneController,
+                          keyboardType:TextInputType.text,
                           decoration: InputDecoration(
                             filled: true, // Set this to true to enable the background color
                             fillColor: Colors.white, // Set the desired background color
@@ -124,7 +226,6 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
                         child: TextFormField(
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              value  = _password;
                               return 'Please enter password';
                             }
                             if (value.length < 6) {
@@ -199,12 +300,8 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
                         child: ElevatedButton(onPressed: _isButtonEnabled
                             ? () {
                           // Action to be taken on button press
-                          saveUserDetails();
-                          loading();
-                          // Navigator.push(context, MaterialPageRoute(builder: (context){
-                          //
-                          //   return CustomerDashboardPage();
-                          // }));
+                          // loading();
+                          makePostRequest();
                         }
                             : null, // Disable button if form is invalid() {
                           child: Text("Log in", style: TextStyle(fontSize: 18.0),),

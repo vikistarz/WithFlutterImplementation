@@ -1,13 +1,30 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
-import '../logIn/ui/logIn.dart';
+import '../../../database/appPrefHelper.dart';
+import '../../../database/saveValues.dart';
+import '../../../dialogs/errorMessageDialog.dart';
+import '../../../dialogs/successMessageDialog.dart';
+import '../../logIn/ui/logIn.dart';
+import 'package:http/http.dart' as http;
 
 class ServiceProviderUploadImagePage extends StatefulWidget {
   const ServiceProviderUploadImagePage({super.key});
+
+  // ServiceProviderUploadImagePage({Key? key,: super(key: key);
+
+  // ServiceProviderUploadImagePage({Key? key, required this.firstName, required this.lastName,
+  //   required this.email, required this.phone1, required this.phone2, required this.stateOfResidence,
+  //   required this.city, required this.serviceType, required this.officeAddress, required this.subCategory,
+  //   required this.openingHour, required this.password, required this.referralCode}) : super(key: key);
+
+  // String firstName, lastName, email, phone1, phone2, stateOfResidence,
+  //     city, serviceType, officeAddress, subCategory, openingHour,password, referralCode;
 
   @override
   State<ServiceProviderUploadImagePage> createState() => _ServiceProviderUploadImagePageState();
@@ -16,6 +33,35 @@ class ServiceProviderUploadImagePage extends StatefulWidget {
 class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadImagePage> {
 
   bool uploadButtonVisible = false;
+  bool isLoadingVisible = true;
+  String token = "";
+  String errorMessage = "";
+  int serviceProviderWalletId = 0;
+
+  void showUploadButton(){
+    setState(() {
+      uploadButtonVisible = true;
+    });
+  }
+
+  void loading(){
+    setState(() {
+      isLoadingVisible = false;
+    });
+  }
+
+  void isNotLoading(){
+    setState(() {
+      isLoadingVisible = true;
+    });
+  }
+
+  void showButton(){
+    uploadButtonVisible = true;
+  }
+
+
+  final String apiUrl = "https://server.handiwork.com.ng/api/skill-providers/create";
 
      File? _image;
 
@@ -31,9 +77,110 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
          });
      }
 
-     void showButton(){
-       uploadButtonVisible = true;
-     }
+  Future<void> makePostRequest(Uint8List bytes,) async {
+
+      final url = Uri.parse(apiUrl);
+
+      final request = http.MultipartRequest('POST', url);
+      if(_image != null){
+        request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
+      }
+      // request.fields['firstName'] = widget.firstName;
+      // request.fields['lastName'] = widget.lastName;
+      // request.fields['email'] = widget.email;
+      // request.fields['password'] = widget.password;
+      // request.fields['phone'] = widget.phone1;
+      // if(widget.phone2 != null && widget.phone2 != ""){
+      //   request.fields['secondPhone'] = widget.phone2;
+      // }
+      // request.fields['stateOfResidence'] = widget.stateOfResidence;
+      // request.fields['city'] = widget.city;
+      // request.fields['street'] = widget.officeAddress;
+      // request.fields['serviceType'] = widget.serviceType;
+      // request.fields['subCategory'] = widget.subCategory;
+      // request.fields['openingHour'] = widget.openingHour;
+      //
+      // if(widget.referralCode != null && widget.referralCode != ""){
+      //   request.fields['referralCode'] = widget.referralCode;
+      // }
+
+      try{
+      var response =  await request.send();
+
+      final responseBody = await response.stream.bytesToString();
+
+      final Map<String, dynamic> responseData = json.decode(responseBody);
+
+      if(response.statusCode == 201){
+        print(await response.stream.bytesToString());
+
+        setState(() {
+           token = responseData['token'];
+           serviceProviderWalletId = responseData['wallet']['id'];
+           showModalBottomSheet(
+               isScrollControlled: true,
+               context: context,
+               builder: (BuildContext context) {
+                 return SuccessMessageDialog(
+                   content: "Service Provider Sign up Successful",
+                   onButtonPressed: () {
+                     Navigator.push(context, MaterialPageRoute(builder: (context){
+                       return LogInPage();
+                     }));
+                     // Add any additional action here
+                     saveUserDetails();
+                   },
+                 );
+               });
+        });
+         }
+      else{
+        errorMessage = responseData['error'] ?? 'Unknown error occurred';
+        showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: errorMessage,
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+        }
+      }
+      catch(e){
+        print('Exception during image upload: $e');
+        isNotLoading();
+        setState(() {
+          showModalBottomSheet(
+              isScrollControlled: true,
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorMessageDialog(
+                  content: "Sorry no internet Connection",
+                  onButtonPressed: () {
+                    Navigator.of(context).pop();
+                    // Add any additional action here
+                    isNotLoading();
+                  },
+                );
+              });
+        });
+      }
+  }
+
+
+  void saveUserDetails() async {
+
+    SaveValues mySaveValues = SaveValues();
+
+    await mySaveValues.saveInt(AppPreferenceHelper.CUSTOMER_WALLET_ID, serviceProviderWalletId!);
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -216,6 +363,9 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
                 child: ElevatedButton(onPressed: () {
                   getImage(ImageSource.camera);
                   Navigator.pop(context);
+                  setState(() {
+                    showUploadButton();
+                  });
 
                 },
                   child: Text("Take a Picture", style: TextStyle(fontSize: 14.0),),
@@ -243,8 +393,10 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
               child: Center(
                 child: ElevatedButton(onPressed: () {
                   getImage(ImageSource.gallery);
-
                    Navigator.pop(context);
+                   setState(() {
+                     showUploadButton();
+                   });
                 },
                   child: Text("Upload a Picture", style: TextStyle(fontSize: 14.0),),
                   style: ElevatedButton.styleFrom(
