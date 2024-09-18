@@ -15,7 +15,8 @@ class CustomerHomeFragment extends StatefulWidget {
 }
 
 class _CustomerHomeFragmentState extends State<CustomerHomeFragment> {
-  String? emailAddress;
+  int? customerId;
+
 
   @override
   void initState() {
@@ -23,13 +24,14 @@ class _CustomerHomeFragmentState extends State<CustomerHomeFragment> {
     getSavedValue();
   }
 
-     getSavedValue() async  {
-     SaveValues mySaveValues = SaveValues();
-     String? emailValue = await mySaveValues.getString(AppPreferenceHelper.EMAIL_ADDRESS);
-     setState(() {
-       emailAddress = emailValue;
-     });
-   }
+  getSavedValue() async  {
+    SaveValues mySaveValues = SaveValues();
+    int? id = await mySaveValues.getInt(AppPreferenceHelper.CUSTOMER_ID);
+    setState(() {
+      customerId = id;
+    });
+  }
+
 
 
   @override
@@ -45,7 +47,7 @@ class _CustomerHomeFragmentState extends State<CustomerHomeFragment> {
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.only(left: 20.0, top: 10.0),
-                child: Text(emailAddress ?? "",style: TextStyle(color: HexColor("#212529"), fontWeight: FontWeight.bold, fontSize:20.0,),),
+                child: Text(customerId.toString() ?? "",style: TextStyle(color: HexColor("#212529"), fontWeight: FontWeight.bold, fontSize:20.0,),),
               ),
             ),
 

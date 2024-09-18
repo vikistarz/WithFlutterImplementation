@@ -1,8 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cross_platform_application/screens/serviceProviderSignUp/ui/serviceProviderUploadImage.dart';
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
+import '../../customerWallet/customerWallet.dart';
 import '../logIn/ui/logIn.dart';
 
 
@@ -113,7 +115,8 @@ class _SliderPageState extends State<SliderPage> {
                        child: InkWell(
                          onTap: (){
                            Navigator.push(context, MaterialPageRoute(builder: (context){
-                             return LogInPage();
+                              // return LogInPage();
+                              return ServiceProviderUploadImagePage();
                            }));
                          },
                          child: Container(

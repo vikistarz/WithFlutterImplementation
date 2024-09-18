@@ -10,6 +10,8 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../../database/appPrefHelper.dart';
 import '../../../database/saveValues.dart';
+import '../../../dialogs/errorMessageDialog.dart';
+import '../../../dialogs/successMessageDialog.dart';
 import '../../forgetPassword/passwordRecovery.dart';
 import '../viewModel/customerLogInViewModel.dart';
 import 'package:http/http.dart' as http;
@@ -24,11 +26,12 @@ class CustomerFragment extends StatefulWidget {
 class _CustomerFragmentState extends State<CustomerFragment> {
 
   final _formKey = GlobalKey<FormState>();
-  var _emailPhone, _password;
   bool _isButtonEnabled = false;
   bool isLoadingVisible = true;
   bool passwordVisible =  false;
-  String? token, errorMessage;
+  String token = "";
+  String errorMessage = "";
+  int customerId = 0;
 
 
 
@@ -45,18 +48,17 @@ class _CustomerFragmentState extends State<CustomerFragment> {
     }
   }
 
+  final String apiUrl = "https://server.handiwork.com.ng/api/auth/login/customer";
 
   TextEditingController emailAddressPhoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  // final CustomerLoginViewModel myCustomerViewModel = CustomerLoginViewModel();
 
 
-  void saveUserDetails() async {
-
-    SaveValues mySaveValues = SaveValues();
-
-    await mySaveValues.saveString(AppPreferenceHelper.EMAIL_ADDRESS, emailAddressPhoneController.text);
-
+  @override
+  void dispose() {
+    emailAddressPhoneController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   void loading(){
@@ -65,62 +67,98 @@ class _CustomerFragmentState extends State<CustomerFragment> {
     });
   }
 
-  Future<void> makePostRequest(String emailOrPhone, String password) async {
-    final url = Uri.parse('https://server.handiwork.com.ng/api/auth/login/customer'); // Replace with your API URL
+  void isNotLoading(){
+    setState(() {
+      isLoadingVisible = true;
+    });
+  }
+
+  Future<void> makePostRequest() async {
+    loading();
 
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer your_token_here', // Add this if your API requires authentication
+      final response = await http.post(Uri.parse(apiUrl),
+        headers:<String, String>{
+          "Content-type": "application/json"
         },
-        body: json.encode({
-          'emailOrPhone': emailOrPhone,
-          'password': password,
+        body: jsonEncode(<String, dynamic>{
+          "emailOrPhone": emailAddressPhoneController.text,
+          "password": passwordController.text,
         }),
       );
 
-      if (response.statusCode == 200) {
-        // Successfully received a response
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        token = responseData['token'];
-        print('Response data: $token');
-        // Handle the response data, e.g., save to SharedPreferences, navigate, etc.
-      } else {
-        // Handle error response
-        print('Failed to login: ${response.statusCode}');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        isNotLoading();
+        // successful post request, handle the response here
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        setState(() {
+          token = responseData['token'];
+          customerId = responseData['customer']['id'];
+          showModalBottomSheet(
+              isScrollControlled: true,
+              context: context,
+              builder: (BuildContext context) {
+                return SuccessMessageDialog(
+                  content: "Customer Sign up Successful",
+                  onButtonPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                      return CustomerDashboardPage();
+                    }));
+                    // Add any additional action here
+                    saveUserDetails();
+                  },
+                );
+              });
+        });
+      }
+
+      else{
+        isNotLoading();
+        // if the server return an error response
         final Map<String, dynamic> errorData = json.decode(response.body);
         errorMessage = errorData['error'] ?? 'Unknown error occurred';
-        print('Error message: $errorMessage');
+
+        showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: errorMessage,
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
       }
-    } catch (error) {
-      // Handle network or other errors
-      print('An error occurred: $error');
+    }
+    catch (e) {
+      isNotLoading();
+      setState(() {
+        showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: "Sorry no internet Connection",
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+      });
     }
   }
 
-  void _login() async {
-    final emailOrPhone = emailAddressPhoneController.text;
-    final password = passwordController.text;
+  void saveUserDetails() async {
 
-    await makePostRequest(emailOrPhone, password);
-    // Handle navigation or other actions after the request
-    if (token != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login successful')),
-      );
-    }
-    else if(errorMessage != null){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(' $errorMessage')),
-      );
-    }
-    else{
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Sorry no internet Connection")),
-      );
-    }
+    SaveValues mySaveValues = SaveValues();
+
+    await mySaveValues.saveInt(AppPreferenceHelper.CUSTOMER_ID, customerId);
+
   }
 
 
@@ -161,7 +199,7 @@ class _CustomerFragmentState extends State<CustomerFragment> {
                        }
                           },
                       controller: emailAddressPhoneController,
-                      keyboardType:TextInputType.emailAddress,
+                      keyboardType:TextInputType.text,
                       decoration: InputDecoration(
                         filled: true, // Set this to true to enable the background color
                         fillColor: Colors.white, // Set the desired background color
@@ -266,9 +304,8 @@ class _CustomerFragmentState extends State<CustomerFragment> {
                          child: ElevatedButton(onPressed: _isButtonEnabled
                                 ? () {
                            // Action to be taken on button press
-                           // saveUserDetails();
-                           loading();
-                           _login();
+                           // loading();
+                            makePostRequest();
                           }
                        : null, // Disable button if form is invalid() {
                            child: Text("Log in", style: TextStyle(fontSize: 18.0),),
@@ -351,4 +388,6 @@ class _CustomerFragmentState extends State<CustomerFragment> {
       ),
     );
   }
+
 }
+

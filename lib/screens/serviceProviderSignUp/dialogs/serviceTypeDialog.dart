@@ -7,18 +7,20 @@ import 'package:http/http.dart' as http;
 import '../../../database/appPrefHelper.dart';
 import '../../../database/saveValues.dart';
 import '../../../dialogs/errorMessageDialog.dart';
+import '../models/ServiceTypeResponseModel.dart';
 import '../models/StateResponseModel.dart';
 
-class StateOfResidenceDialog extends StatefulWidget {
-  const StateOfResidenceDialog({super.key});
+class ServiceTypeDialog extends StatefulWidget {
+  const ServiceTypeDialog({super.key});
 
   @override
-  State<StateOfResidenceDialog> createState() => _StateOfResidenceDialogState();
+  State<ServiceTypeDialog> createState() => _ServiceTypeDialogState();
 }
 
-class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
+class _ServiceTypeDialogState extends State<ServiceTypeDialog> {
 
-  String stateCode = "";
+  String serviceType = "";
+  int serviceTypeId = 0;
   String errorMessage = "";
   bool isLoadingVisible = true;
 
@@ -35,36 +37,24 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
   }
 
 
-  Future<List<StatesResponseModel>> fetchState() async {
+  Future<List<ServiceTypeResponseModel>> fetchServices() async {
     loading();
 
     final response = await http.get(
-        Uri.parse("https://server.handiwork.com.ng/api/nigerian-states/states"));
+        Uri.parse("https://server.handiwork.com.ng/api/skills-subcategory/viewAllSkillTypes"));
 
     if (response.statusCode == 200) {
       print('Response Body: ${response.body}');
-      final jsonResponse = json.decode(response.body);
-      List<dynamic> items = jsonResponse['states'];
-      return items.map((json) => StatesResponseModel.fromJson(json)).toList();
+       List<dynamic> items = json.decode(response.body);
+      return items.map((json) => ServiceTypeResponseModel.fromJson(json)).toList();
+      // final jsonResponse = json.decode(response.body);
+      // List<dynamic> items = jsonResponse['states'];
+      // return items.map((json) => StatesResponseModel.fromJson(json)).toList();
     }
 
     else {
       isNotLoading();
-      setState(() {
-        showModalBottomSheet(
-            isScrollControlled: true,
-            context: context,
-            builder: (BuildContext context) {
-              return ErrorMessageDialog(
-                content: "An error occurred",
-                onButtonPressed: () {
-                  Navigator.of(context).pop();
-                  // Add any additional action here
-                  // isNotLoading();
-                },
-              );
-            });
-      });
+
       throw Exception('Failed to load items');
     }
   }
@@ -73,10 +63,9 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
 
     SaveValues mySaveValues = SaveValues();
 
-    await mySaveValues.saveString(AppPreferenceHelper.SELECTED_STATE_CODE, stateCode);
+    await mySaveValues.saveInt(AppPreferenceHelper.SELECTED_SERVICE_TYPE_ID, serviceTypeId);
 
   }
-
 
 
   @override
@@ -128,8 +117,8 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
       child: Container(
         height: 500.0,
         margin: EdgeInsets.only(bottom: 20.0),
-        child: FutureBuilder<List<StatesResponseModel>>(
-           future: fetchState(),
+        child: FutureBuilder<List<ServiceTypeResponseModel>>(
+           future: fetchServices(),
            builder: (context, snapshot) {
              if (snapshot.connectionState == ConnectionState.waiting) {
                return Padding(
@@ -138,7 +127,7 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                    visible: !isLoadingVisible,
                    child: SpinKitFadingCircle(
                    color: Colors.white,
-                   size: 40.0,),
+                   size: 50.0,),
                  ),);
              }
              else if (snapshot.hasError) {
@@ -146,53 +135,61 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                  backgroundColor: Colors.white,
                  child: Container(
                    height: 170.0,
-                     child: Column(
-                       children: [
-                         Row(
-                           children: [
-                     Padding(
-                       padding: const EdgeInsets.only(top: 40.0, left: 25.0),
-                       child: Image(image: AssetImage("images/error_icon.png"), width: 40.0, height: 40.0,),
-                     ),
+                   child: Column(
+                     children: [
+                       Row(
+                         children: [
+                           Padding(
+                             padding: const EdgeInsets.only(top: 40.0, left: 25.0),
+                             child: Image(image: AssetImage("images/error_icon.png"), width: 40.0, height: 40.0,),
+                           ),
 
-                             Padding(
-                               padding: const EdgeInsets.only(top: 15.0, left: 15.0, right: 20.0),
-                               child: Text('Sorry an error occurred', style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.normal,),),
-                             )
-                           ],
-                         ),
+                           Padding(
+                             padding: const EdgeInsets.only(top: 15.0, left: 15.0, right: 20.0),
+                             child: Text('Sorry an error occurred', style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.normal,),),
+                           )
+                         ],
+                       ),
 
-                         Padding(
-                           padding: const EdgeInsets.only(top: 15.0, left: 16.0, right: 16.0),
-                           child: Center(
-                             child: ElevatedButton(onPressed: () {
+                       Padding(
+                         padding: const EdgeInsets.only(top: 15.0, left: 16.0, right: 16.0),
+                         child: Center(
+                           child: ElevatedButton(onPressed: () {
 
-                               fetchState();
-                             },
-                               child: Text("Try Again", style: TextStyle(fontSize: 14.0),),
-                               style: ElevatedButton.styleFrom(
-                                 foregroundColor: Colors.white, backgroundColor: HexColor("#FF2121"), padding: EdgeInsets.all(10.0),
-                                 minimumSize: Size(200.0, 30.0),
-                                 // fixedSize: Size(300.0, 50.0),
-                                 textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
-                                 elevation: 2,
-                                 shape: RoundedRectangleBorder(
-                                   borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
-                                       topRight: Radius.circular(15.0),
-                                       bottomRight: Radius.circular(15.0),
-                                       bottomLeft: Radius.circular(15.0)),
-                                 ),
-                                 // side: BorderSide(color: Colors.black, width: 2),
-                                 // alignment: Alignment.topCenter
+                             fetchServices();
+                           },
+                             child: Text("Try Again", style: TextStyle(fontSize: 14.0),),
+                             style: ElevatedButton.styleFrom(
+                               foregroundColor: Colors.white, backgroundColor: HexColor("#FF2121"), padding: EdgeInsets.all(10.0),
+                               minimumSize: Size(200.0, 30.0),
+                               // fixedSize: Size(300.0, 50.0),
+                               textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
+                               elevation: 2,
+                               shape: RoundedRectangleBorder(
+                                 borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
+                                     topRight: Radius.circular(15.0),
+                                     bottomRight: Radius.circular(15.0),
+                                     bottomLeft: Radius.circular(15.0)),
                                ),
+                               // side: BorderSide(color: Colors.black, width: 2),
+                               // alignment: Alignment.topCenter
                              ),
                            ),
                          ),
-                       ],
-                     ),
-                     // child: Center(child: Text('Error: ${snapshot.error}')),
+                       ),
+                     ],
+                   ),
+                   // child: Center(child: Text('Error: ${snapshot.error}')),
                  ),
                );
+               // return Dialog(
+               //
+               //   backgroundColor: Colors.white,
+               //   child: Container(
+               //     height: 200.0,
+               //       child: Center(child: Text('Error: ${snapshot.error}'))),
+               // );
+               // return Center(child: Text('Error: ${snapshot.error}'));
              }
              else if(!snapshot.hasData || snapshot.data!.isEmpty){
                return Dialog(
@@ -246,7 +243,6 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                    // child: Center(child: Text('Error: ${snapshot.error}')),
                  ),
                );
-
              }
              else {
                return ListView.builder(
@@ -257,24 +253,15 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
 
                    return new GestureDetector(
                      onTap: () {
-                       stateCode = item.state_code;
+                       serviceTypeId = item.id;
                        saveUserDetails();
-                       Navigator.pop(context, item.name);
+                       Navigator.pop(context, item.serviceType);
                      },
                      child: Padding(
                        padding: const EdgeInsets.only(top: 15.0, left: 20.0),
-                       child: Text(item.name, style: TextStyle(color: Colors.white, fontSize: 18.0),),
+                       child: Text(item.serviceType, style: TextStyle(color: Colors.white, fontSize: 18.0),),
                      ),
                    );
-
-                   return ListTile(
-                     contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
-                     title: Text(item.name, style: TextStyle(color: Colors.white, fontSize: 16.0),),
-                     onTap: () {
-                       String stateCode = item.state_code;
-                       Navigator.pop(context, item.name);
-                     },
-                       );
                      },
                   );
                 }

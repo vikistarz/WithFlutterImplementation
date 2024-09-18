@@ -133,6 +133,12 @@ flutter:
     - images/log_out_icon.png
     - images/camera.png
     - images/choose_image.png
+    - images/success_icon.png
+    - images/error_icon.png
+    - images/wallet_dashboard.png
+    - images/copy_icon.png
+    - images/transfer_icon.png
+    - images/add_money.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -157,6 +163,6 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
-  #
+  #t
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
