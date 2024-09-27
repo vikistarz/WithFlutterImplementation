@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../../../database/appPrefHelper.dart';
 import '../../../database/saveValues.dart';
 import '../../../dialogs/errorMessageDialog.dart';
+import '../../../webService/apiConstant.dart';
 import '../models/StateResponseModel.dart';
 import '../models/SubCategoryResponseModel.dart';
 
@@ -54,9 +55,13 @@ class _SubCategoryDialogState extends State<SubCategoryDialog> {
 
   Future<SubCategoryResponseModel> fetchSubCategory(int id) async {
     loading();
-
+    final String apiUrl = ApiConstant.baseUri + 'skillType/service/servicewithcategories/$id';
     final response = await http.get(
-        Uri.parse("https://server.handiwork.com.ng/api/skillType/service/servicewithcategories/$id"));
+        Uri.parse(apiUrl));
+
+    print("request: " + response.toString());
+    print(response.statusCode);
+
     if (response.statusCode == 200) {
       print('Response Body: ${response.body}');
       return SubCategoryResponseModel.fromJson(json.decode(response.body));

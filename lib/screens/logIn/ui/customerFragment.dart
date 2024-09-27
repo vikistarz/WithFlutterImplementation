@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:cross_platform_application/screens/choiceScreen/choiceScreenPage.dart';
 import 'package:cross_platform_application/screens/customerDashBoard/customerDashboard.dart';
-import 'package:cross_platform_application/screens/logIn/model/loginRequestModel.dart';
+import 'package:cross_platform_application/webService/apiConstant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -13,7 +13,6 @@ import '../../../database/saveValues.dart';
 import '../../../dialogs/errorMessageDialog.dart';
 import '../../../dialogs/successMessageDialog.dart';
 import '../../forgetPassword/passwordRecovery.dart';
-import '../viewModel/customerLogInViewModel.dart';
 import 'package:http/http.dart' as http;
 
 class CustomerFragment extends StatefulWidget {
@@ -48,7 +47,6 @@ class _CustomerFragmentState extends State<CustomerFragment> {
     }
   }
 
-  final String apiUrl = "https://server.handiwork.com.ng/api/auth/login/customer";
 
   TextEditingController emailAddressPhoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -75,7 +73,7 @@ class _CustomerFragmentState extends State<CustomerFragment> {
 
   Future<void> makePostRequest() async {
     loading();
-
+    final String apiUrl = ApiConstant.customerLogInApi;
     try {
       final response = await http.post(Uri.parse(apiUrl),
         headers:<String, String>{
@@ -87,19 +85,24 @@ class _CustomerFragmentState extends State<CustomerFragment> {
         }),
       );
 
+      print("request: " + response.toString());
+      print(response.statusCode);
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         isNotLoading();
+        print('Response Body: ${response.body}');
         // successful post request, handle the response here
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         setState(() {
           token = responseData['token'];
           customerId = responseData['customer']['id'];
           showModalBottomSheet(
-              isScrollControlled: true,
+              isDismissible: false,
+              enableDrag: false,
               context: context,
-              builder: (BuildContext context) {
+              builder: (context) {
                 return SuccessMessageDialog(
-                  content: "Customer Sign up Successful",
+                  content: "Customer Log in Successful",
                   onButtonPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context){
                       return CustomerDashboardPage();
@@ -119,7 +122,8 @@ class _CustomerFragmentState extends State<CustomerFragment> {
         errorMessage = errorData['error'] ?? 'Unknown error occurred';
 
         showModalBottomSheet(
-            isScrollControlled: true,
+            isDismissible: false,
+            enableDrag: false,
             context: context,
             builder: (BuildContext context) {
               return ErrorMessageDialog(
@@ -137,7 +141,8 @@ class _CustomerFragmentState extends State<CustomerFragment> {
       isNotLoading();
       setState(() {
         showModalBottomSheet(
-            isScrollControlled: true,
+            isDismissible: false,
+            enableDrag: false,
             context: context,
             builder: (BuildContext context) {
               return ErrorMessageDialog(

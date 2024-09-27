@@ -1,3 +1,4 @@
+import 'package:cross_platform_application/webService/apiConstant.dart';
 import'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -39,22 +40,22 @@ class _ServiceTypeDialogState extends State<ServiceTypeDialog> {
 
   Future<List<ServiceTypeResponseModel>> fetchServices() async {
     loading();
-
+    final String apiUrl = ApiConstant.getServicesApi;
     final response = await http.get(
-        Uri.parse("https://server.handiwork.com.ng/api/skills-subcategory/viewAllSkillTypes"));
+        Uri.parse(apiUrl));
+
+    print("request: " + response.toString());
+    print(response.statusCode);
 
     if (response.statusCode == 200) {
       print('Response Body: ${response.body}');
        List<dynamic> items = json.decode(response.body);
       return items.map((json) => ServiceTypeResponseModel.fromJson(json)).toList();
-      // final jsonResponse = json.decode(response.body);
-      // List<dynamic> items = jsonResponse['states'];
-      // return items.map((json) => StatesResponseModel.fromJson(json)).toList();
+
     }
 
     else {
       isNotLoading();
-
       throw Exception('Failed to load items');
     }
   }

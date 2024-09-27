@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 import '../../customerWallet/customerWallet.dart';
 import '../logIn/ui/logIn.dart';
+import '../portfolioPage.dart';
 
 
 class SliderPage extends StatefulWidget {
@@ -115,8 +116,7 @@ class _SliderPageState extends State<SliderPage> {
                        child: InkWell(
                          onTap: (){
                            Navigator.push(context, MaterialPageRoute(builder: (context){
-                              // return LogInPage();
-                              return ServiceProviderUploadImagePage();
+                               return PortfolioPage();
                            }));
                          },
                          child: Container(

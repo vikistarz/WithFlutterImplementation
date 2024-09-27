@@ -1,7 +1,5 @@
-import 'package:cross_platform_application/screens/portfolioPage.dart';
-import 'package:cross_platform_application/screens/shortsPage.dart';
+
 import 'package:cross_platform_application/screens/signUpPage.dart';
-import 'package:cross_platform_application/screens/subscriptionPage.dart';
 import 'package:cross_platform_application/screens/youPage.dart';
 import'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -18,10 +16,10 @@ class _NewHomePageState extends State<NewHomePage> {
    int pageIndex = 0;
 
    final pages = [
-     const YouPage(),
-     const ShortsPage(),
-     const SubscriptionPage(),
-     const PortfolioPage(),
+     // const YouPage(),
+     // const ShortsPage(),
+     // const SubscriptionPage(),
+     // const PortfolioPage(),
    ];
 
    bool pressed = true;
@@ -199,6 +197,7 @@ class _NewHomePageState extends State<NewHomePage> {
                   pageIndex = 2;
                 });
               },
+
               child: Column(
                 children: [
                   IconButton(onPressed: () {},

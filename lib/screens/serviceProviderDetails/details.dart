@@ -10,7 +10,16 @@ import 'fragments/reviewFragment.dart';
 
 
 class ServiceProviderDetailsPage extends StatefulWidget {
-  const ServiceProviderDetailsPage({super.key});
+  ServiceProviderDetailsPage({Key? key, required this.firstName, required this.lastName,
+    required this.email, required this.phone, required this.id, required this.stateOfResidence,
+    required this.city, required this.serviceType, required this.officeAddress, required this.subCategory,
+    required this.openingHour, required this.verified, required this.imagePath, required this.skills,
+    required this.about}) : super(key: key);
+
+  String firstName, lastName, email, phone, stateOfResidence, about, skills,
+      city, serviceType, officeAddress, subCategory, openingHour,verified, imagePath;
+
+    int id;
 
   @override
   State<ServiceProviderDetailsPage> createState() => _ServiceProviderDetailsPageState();

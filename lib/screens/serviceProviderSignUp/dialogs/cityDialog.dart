@@ -1,3 +1,4 @@
+import 'package:cross_platform_application/webService/apiConstant.dart';
 import'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -6,9 +7,8 @@ import 'package:http/http.dart' as http;
 
 import '../../../database/appPrefHelper.dart';
 import '../../../database/saveValues.dart';
-import '../../../dialogs/errorMessageDialog.dart';
 import '../models/CityResponseModel.dart';
-import '../models/StateResponseModel.dart';
+
 
 class CityDialog extends StatefulWidget {
   const CityDialog({super.key});
@@ -55,8 +55,12 @@ class _CityDialogState extends State<CityDialog> {
   Future<List<CityResponseModel>> fetchState() async {
     loading();
 
+    final String apiUrl = ApiConstant.baseUri + 'nigerian-states/$stateCode/cities';
     final response = await http.get(
-        Uri.parse("https://server.handiwork.com.ng/api/nigerian-states/$stateCode/cities"));
+        Uri.parse(apiUrl));
+
+    print("request: " + response.toString());
+    print(response.statusCode);
 
     if (response.statusCode == 200) {
       print('Response Body: ${response.body}');

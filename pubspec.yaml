@@ -47,6 +47,12 @@ dependencies:
   flutter_pdfview: ^1.0.4
   flutter_spinkit: ^5.1.0
   http: ^0.13.3
+  dio: ^5.4.0
+  webview_flutter: ^2.0.10
+  video_player: ^2.8.2
+
+
+
 
 
 
@@ -139,6 +145,9 @@ flutter:
     - images/copy_icon.png
     - images/transfer_icon.png
     - images/add_money.png
+    - images/service_provider_icon.png
+    - images/filter_icon.png
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
