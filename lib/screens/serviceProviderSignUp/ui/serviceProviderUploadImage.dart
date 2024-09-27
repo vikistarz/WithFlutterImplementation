@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cross_platform_application/webService/apiConstant.dart';
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../database/appPrefHelper.dart';
@@ -12,19 +14,22 @@ import '../../../dialogs/errorMessageDialog.dart';
 import '../../../dialogs/successMessageDialog.dart';
 import '../../logIn/ui/logIn.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
+// import'package:path/path.dart';
+import 'package:async/async.dart';
+
+
+
 
 class ServiceProviderUploadImagePage extends StatefulWidget {
-  const ServiceProviderUploadImagePage({super.key});
+  ServiceProviderUploadImagePage({Key? key, required this.firstName, required this.lastName,
+    required this.email, required this.phone1, required this.phone2, required this.stateOfResidence,
+    required this.city, required this.serviceType, required this.officeAddress, required this.subCategory,
+    required this.openingHour, required this.password, required this.referralCode}) : super(key: key);
 
-  // ServiceProviderUploadImagePage({Key? key,: super(key: key);
-
-  // ServiceProviderUploadImagePage({Key? key, required this.firstName, required this.lastName,
-  //   required this.email, required this.phone1, required this.phone2, required this.stateOfResidence,
-  //   required this.city, required this.serviceType, required this.officeAddress, required this.subCategory,
-  //   required this.openingHour, required this.password, required this.referralCode}) : super(key: key);
-
-  // String firstName, lastName, email, phone1, phone2, stateOfResidence,
-  //     city, serviceType, officeAddress, subCategory, openingHour,password, referralCode;
+  String firstName, lastName, email, phone1, phone2, stateOfResidence,
+      city, serviceType, officeAddress, subCategory, openingHour,password, referralCode;
 
   @override
   State<ServiceProviderUploadImagePage> createState() => _ServiceProviderUploadImagePageState();
@@ -32,135 +37,145 @@ class ServiceProviderUploadImagePage extends StatefulWidget {
 
 class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadImagePage> {
 
+  Dio dio = new Dio();
+
   bool uploadButtonVisible = false;
   bool isLoadingVisible = true;
-  String token = "";
-  String errorMessage = "";
+  String? token;
+  String? errorMessage;
   int serviceProviderWalletId = 0;
 
-  void showUploadButton(){
+
+  void showUploadButton() {
     setState(() {
       uploadButtonVisible = true;
     });
   }
 
-  void loading(){
+  void loading() {
     setState(() {
       isLoadingVisible = false;
     });
   }
 
-  void isNotLoading(){
+  void isNotLoading() {
     setState(() {
       isLoadingVisible = true;
     });
   }
 
-  void showButton(){
+  void showButton() {
     uploadButtonVisible = true;
   }
 
 
   final String apiUrl = "https://server.handiwork.com.ng/api/skill-providers/create";
 
-     File? _image;
 
-     Future getImage(ImageSource source) async {
-       final image = await ImagePicker().pickImage(source: source);
-       
-       if( image == null) return;
-         
-         final imageTemporary = File(image.path);
+  File? _image;
+  Map<String, dynamic>? responseData;
 
-         setState(() {
-           this._image = imageTemporary;
-         });
-     }
+  Future getImage(ImageSource source) async {
+    final image = await ImagePicker().pickImage(source: source, imageQuality: 100);
 
-  Future<void> makePostRequest(Uint8List bytes,) async {
+    if (image == null) return;
 
-      final url = Uri.parse(apiUrl);
+    final imageTemporary = File(image.path);
 
-      final request = http.MultipartRequest('POST', url);
-      if(_image != null){
-        request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
-      }
-      // request.fields['firstName'] = widget.firstName;
-      // request.fields['lastName'] = widget.lastName;
-      // request.fields['email'] = widget.email;
-      // request.fields['password'] = widget.password;
-      // request.fields['phone'] = widget.phone1;
-      // if(widget.phone2 != null && widget.phone2 != ""){
-      //   request.fields['secondPhone'] = widget.phone2;
-      // }
-      // request.fields['stateOfResidence'] = widget.stateOfResidence;
-      // request.fields['city'] = widget.city;
-      // request.fields['street'] = widget.officeAddress;
-      // request.fields['serviceType'] = widget.serviceType;
-      // request.fields['subCategory'] = widget.subCategory;
-      // request.fields['openingHour'] = widget.openingHour;
-      //
-      // if(widget.referralCode != null && widget.referralCode != ""){
-      //   request.fields['referralCode'] = widget.referralCode;
-      // }
+    setState(() {
+      _image = imageTemporary;
+    });
+  }
 
-      try{
-      var response =  await request.send();
 
-      final responseBody = await response.stream.bytesToString();
 
-      final Map<String, dynamic> responseData = json.decode(responseBody);
+
+  Future<void> makePostRequest() async {
+    loading();
+
+    final String apiUrl = ApiConstant.serviceProviderLogInApi;
+    try{
+
+    if(_image == null) return;
+
+      final uri = Uri.parse(apiUrl);
+      var request = http.MultipartRequest('POST', uri);
+
+      request.fields['firstName'] = widget.firstName.toString();
+      request.fields['lastName'] = widget.lastName.toString();
+      request.fields['email'] = widget.email.toString();
+      request.fields['password'] = widget.password.toString();
+      request.fields['phone'] = widget.phone1.toString();
+      request.fields['secondPhone'] = widget.phone2.toString();
+      request.fields['stateOfResidence'] = widget.stateOfResidence.toString();
+      request.fields['city'] = widget.city.toString();
+      request.fields['street'] = widget.officeAddress.toString();
+      request.fields['serviceType'] = widget.serviceType.toString();
+      request.fields['subCategory'] = widget.subCategory.toString();
+      request.fields['openingHour'] = widget.openingHour.toString();
+      request.fields['referralCode'] = widget.referralCode.toString();
+
+      File _file = File(_image!.path);
+
+
+    request.files.add(await http.MultipartFile.fromPath('image', _file.path,
+        contentType: MediaType('image', "png")));
+
+    print("request: " + request.toString());
+    var response = await request.send();
+    print(response.statusCode);
+
+
 
       if(response.statusCode == 201){
-        print(await response.stream.bytesToString());
+        isNotLoading();
+        var responseData = await response.stream.toBytes();
+        var responseString = String.fromCharCodes(responseData);
+        print('Response Body: ${responseString}');
+        var jsonResponse = json.decode(responseString);
+        final Map<String, dynamic> data = jsonResponse;
+        token = data['skillProvider']['token'];
+        serviceProviderWalletId = data['wallet']['id'];
+        print(serviceProviderWalletId);
 
         setState(() {
-           token = responseData['token'];
-           serviceProviderWalletId = responseData['wallet']['id'];
-           showModalBottomSheet(
-               isScrollControlled: true,
-               context: context,
-               builder: (BuildContext context) {
-                 return SuccessMessageDialog(
-                   content: "Service Provider Sign up Successful",
-                   onButtonPressed: () {
-                     Navigator.push(context, MaterialPageRoute(builder: (context){
-                       return LogInPage();
-                     }));
-                     // Add any additional action here
-                     saveUserDetails();
-                   },
-                 );
-               });
+          showModalBottomSheet(
+              isDismissible: false,
+              enableDrag: false,
+              context: context,
+              builder: (BuildContext context) {
+                return SuccessMessageDialog(
+                  content: 'Service Provider Sign up Successful',
+                  onButtonPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                      return LogInPage();
+                    }));
+                    // Add any additional action here
+                    saveUserDetails();
+                  },
+                );
+              });
         });
-         }
-      else{
-        errorMessage = responseData['error'] ?? 'Unknown error occurred';
-        showModalBottomSheet(
-            isScrollControlled: true,
-            context: context,
-            builder: (BuildContext context) {
-              return ErrorMessageDialog(
-                content: errorMessage,
-                onButtonPressed: () {
-                  Navigator.of(context).pop();
-                  // Add any additional action here
-                  isNotLoading();
-                },
-              );
-            });
-        }
       }
-      catch(e){
-        print('Exception during image upload: $e');
+
+
+      else{
         isNotLoading();
+        var responseData = await response.stream.toBytes();
+        var responseString = String.fromCharCodes(responseData);
+        print('Response Body: ${responseString}');
+        var jsonResponse = json.decode(responseString);
+        final Map<String, dynamic> errorData = jsonResponse;
+        errorMessage = errorData['error'] ?? 'Unknown error occurred';
+        print(errorMessage);
         setState(() {
           showModalBottomSheet(
-              isScrollControlled: true,
+              isDismissible: false,
+              enableDrag: false,
               context: context,
               builder: (BuildContext context) {
                 return ErrorMessageDialog(
-                  content: "Sorry no internet Connection",
+                  content: errorMessage,
                   onButtonPressed: () {
                     Navigator.of(context).pop();
                     // Add any additional action here
@@ -169,7 +184,29 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
                 );
               });
         });
-      }
+        }
+    }
+    catch(e){
+      print('Exception during image upload: $e');
+      isNotLoading();
+
+      setState(() {
+        showModalBottomSheet(
+            isDismissible: false,
+            enableDrag: false,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: "Sorry no internet Connection",
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+      });
+    }
   }
 
 
@@ -177,7 +214,7 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
 
     SaveValues mySaveValues = SaveValues();
 
-    await mySaveValues.saveInt(AppPreferenceHelper.CUSTOMER_WALLET_ID, serviceProviderWalletId!);
+    await mySaveValues.saveInt(AppPreferenceHelper.SERVICE_PROVIDER_WALLET_ID, serviceProviderWalletId!);
 
   }
 
@@ -296,36 +333,74 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
                      ),
                    ),
 
-                   Visibility(
-                     visible: uploadButtonVisible,
-                     child: Padding(
-                       padding: const EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0),
-                       child: Center(
-                         child: ElevatedButton(onPressed: () {
-                           Navigator.push(context, MaterialPageRoute(builder: (context){
-                             return LogInPage();
-                           }));
-                         },
-                           child: Text("Upload to Sign up", style: TextStyle(fontSize: 14.0),),
-                           style: ElevatedButton.styleFrom(
-                             foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
-                             minimumSize: Size(200.0, 40.0),
-                             // fixedSize: Size(300.0, 50.0),
-                             textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
-                             elevation: 2,
-                             shape: RoundedRectangleBorder(
-                               borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
-                                   topRight: Radius.circular(15.0),
-                                   bottomRight: Radius.circular(15.0),
-                                   bottomLeft: Radius.circular(15.0)),
+                   Stack(
+                     children: [
+
+                       Visibility(
+                         visible: uploadButtonVisible,
+                         child: Padding(
+                           padding: const EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0),
+                           child: Center(
+                             child: ElevatedButton(onPressed: () async {
+                              // registerServiceProvider();
+                               makePostRequest();
+                               // registerEmployeeFace();
+                             },
+                               child: Text("Upload to Sign up", style: TextStyle(fontSize: 14.0),),
+                               style: ElevatedButton.styleFrom(
+                                 foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
+                                 minimumSize: Size(200.0, 40.0),
+                                 // fixedSize: Size(300.0, 50.0),
+                                 textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
+                                 elevation: 2,
+                                 shape: RoundedRectangleBorder(
+                                   borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                                   // borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
+                                   //     topRight: Radius.circular(15.0),
+                                   //     bottomRight: Radius.circular(15.0),
+                                   //     bottomLeft: Radius.circular(15.0)),
+                                 ),
+                                 // side: BorderSide(color: Colors.black, width: 2),
+                                 // alignment: Alignment.topCenter
+                               ),
                              ),
-                             // side: BorderSide(color: Colors.black, width: 2),
-                             // alignment: Alignment.topCenter
                            ),
                          ),
                        ),
-                     ),
+
+                       Visibility(
+                         visible: !isLoadingVisible,
+                         child: Center(
+                           child: Container(
+                             height: 40.0,
+                             width: 200.0,
+                             margin: EdgeInsets.only(top: 24.0, left: 16.0, right: 16.0),
+                             decoration: BoxDecoration(
+                               color: HexColor("#A7A8DC"),
+                               borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                             ),
+                             child: Row(
+                               mainAxisAlignment: MainAxisAlignment.center,
+                               children: [
+
+                                 SpinKitFadingCircle(
+                                   color: HexColor("#F5F6F6"),
+                                   size: 16.0,
+                                 ),
+
+                                 Padding(
+                                   padding: const EdgeInsets.only(left: 10.0),
+                                   child: Text("Loading",style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize:11.0,),),
+                                 ),
+                               ],
+                             ),
+                           ),
+                         ),
+                       ),
+
+                     ],
                    ),
+
                  ]
                ),
              ),
@@ -357,36 +432,36 @@ class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadIm
               ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.only(top: 30.0, left: 16.0, right: 16.0),
-              child: Center(
-                child: ElevatedButton(onPressed: () {
-                  getImage(ImageSource.camera);
-                  Navigator.pop(context);
-                  setState(() {
-                    showUploadButton();
-                  });
-
-                },
-                  child: Text("Take a Picture", style: TextStyle(fontSize: 14.0),),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
-                    minimumSize: Size(200.0, 40.0),
-                    // fixedSize: Size(300.0, 50.0),
-                    textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
-                          topRight: Radius.circular(15.0),
-                          bottomRight: Radius.circular(15.0),
-                          bottomLeft: Radius.circular(15.0)),
-                    ),
-                    // side: BorderSide(color: Colors.black, width: 2),
-                    // alignment: Alignment.topCenter
-                  ),
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(top: 30.0, left: 16.0, right: 16.0),
+            //   child: Center(
+            //     child: ElevatedButton(onPressed: () {
+            //       getImage(ImageSource.camera);
+            //       Navigator.pop(context);
+            //       setState(() {
+            //         showUploadButton();
+            //       });
+            //
+            //     },
+            //       child: Text("Take a Picture", style: TextStyle(fontSize: 14.0),),
+            //       style: ElevatedButton.styleFrom(
+            //         foregroundColor: Colors.white, backgroundColor: HexColor("#5E60CE"), padding: EdgeInsets.all(10.0),
+            //         minimumSize: Size(200.0, 40.0),
+            //         // fixedSize: Size(300.0, 50.0),
+            //         textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
+            //         elevation: 2,
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
+            //               topRight: Radius.circular(15.0),
+            //               bottomRight: Radius.circular(15.0),
+            //               bottomLeft: Radius.circular(15.0)),
+            //         ),
+            //         // side: BorderSide(color: Colors.black, width: 2),
+            //         // alignment: Alignment.topCenter
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
             Padding(
               padding: const EdgeInsets.only(top: 10.0, left: 16.0, right: 16.0, bottom: 20.0),

@@ -39,7 +39,7 @@ class SuccessMessageDialog extends StatelessWidget {
 
             Padding(
               padding: const EdgeInsets.only(top: 30.0, left: 16.0, right: 16.0,),
-              child: Text(content!, style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold, color: Colors.grey),
+              child: Text(content!, style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.normal),
               ),
             ),
 

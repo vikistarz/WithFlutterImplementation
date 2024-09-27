@@ -8,6 +8,7 @@ class CustomerWalletPage extends StatefulWidget {
 }
 
 class _CustomerWalletPageState extends State<CustomerWalletPage> {
+
   Future<void> _refresh() async {
     // Simulate a network request or any async task
     await Future.delayed(Duration(seconds: 2));

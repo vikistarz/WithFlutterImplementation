@@ -727,14 +727,14 @@ class _ServiceProviderSignUpPageState extends State<ServiceProviderSignUpPage> {
               child: ElevatedButton(onPressed: _isButtonEnabled
                   ? () {
                 // Action to be taken on button press
-              // Navigator.push(context, MaterialPageRoute(builder: (context){
-                // return ServiceProviderUploadImagePage(firstName: firstNameController.text, lastName: lastNameController.text,
-                //     email: emailAddressController.text, phone1: mobile1Controller.text, phone2: mobile2Controller.text,
-                //     stateOfResidence: statesController.text, city: cityController.text, serviceType: serviceTypeController.text,
-                //     officeAddress: officeAddressController.text, subCategory: subcategoryController.text,
-                //     openingHour: openingHourController.text, password: passwordController.text, referralCode: referralCodeController.text,);
+              Navigator.push(context, MaterialPageRoute(builder: (context){
+                return ServiceProviderUploadImagePage(firstName: firstNameController.text, lastName: lastNameController.text,
+                    email: emailAddressController.text, phone1: mobile1Controller.text, phone2: mobile2Controller.text,
+                    stateOfResidence: statesController.text, city: cityController.text, serviceType: serviceTypeController.text,
+                    officeAddress: officeAddressController.text, subCategory: subcategoryController.text,
+                    openingHour: openingHourController.text, password: passwordController.text, referralCode: referralCodeController.text,);
 
-              // }));
+              }));
                 // makePostRequest();
                 // _customerSignUp();
               }

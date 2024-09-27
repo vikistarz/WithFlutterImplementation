@@ -4,22 +4,23 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../../../database/appPrefHelper.dart';
+import '../../../../../database/saveValues.dart';
+import '../../../../../dialogs/errorMessageDialog.dart';
+import '../../../../serviceProviderSignUp/models/ServiceTypeResponseModel.dart';
+import '../../../../serviceSubCategories/serviceSubCategories.dart';
 
-import '../../../database/appPrefHelper.dart';
-import '../../../database/saveValues.dart';
-import '../../../dialogs/errorMessageDialog.dart';
-import '../models/StateResponseModel.dart';
-
-class StateOfResidenceDialog extends StatefulWidget {
-  const StateOfResidenceDialog({super.key});
+class SearchServiceProviderDialog extends StatefulWidget {
+  const SearchServiceProviderDialog({super.key});
 
   @override
-  State<StateOfResidenceDialog> createState() => _StateOfResidenceDialogState();
+  State<SearchServiceProviderDialog> createState() => _SearchServiceProviderDialogState();
 }
 
-class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
+class _SearchServiceProviderDialogState extends State<SearchServiceProviderDialog> {
 
-  String stateCode = "";
+  String serviceType = "";
+  int serviceTypeId = 0;
   String errorMessage = "";
   bool isLoadingVisible = true;
 
@@ -36,20 +37,19 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
   }
 
 
-  Future<List<StatesResponseModel>> fetchState() async {
+  Future<List<ServiceTypeResponseModel>> fetchServices() async {
     loading();
-
-    final response = await http.get(
-        Uri.parse(ApiConstant.getStateApi));
+    final String apiUrl = ApiConstant.getServicesApi;
+    final response = await http.get(Uri.parse(apiUrl));
 
     print("request: " + response.toString());
     print(response.statusCode);
 
     if (response.statusCode == 200) {
       print('Response Body: ${response.body}');
-      final jsonResponse = json.decode(response.body);
-      List<dynamic> items = jsonResponse['states'];
-      return items.map((json) => StatesResponseModel.fromJson(json)).toList();
+      List<dynamic> items = json.decode(response.body);
+      return items.map((json) => ServiceTypeResponseModel.fromJson(json)).toList();
+
     }
 
     else {
@@ -73,55 +73,84 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
     }
   }
 
-  void saveUserDetails() async {
-
-    SaveValues mySaveValues = SaveValues();
-
-    await mySaveValues.saveString(AppPreferenceHelper.SELECTED_STATE_CODE, stateCode);
-
-  }
-
-
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.95,
+      height: MediaQuery.of(context).size.height * 1.0,
       decoration: BoxDecoration(
-          color: HexColor("#212529"),
+          color: HexColor("#f2f2f2"),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16.0),
-          topRight: Radius.circular(16.0),
+          topLeft: Radius.circular(0.0),
+          topRight: Radius.circular(0.0),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0, left: 20.0),
-            child: IconButton(
-              onPressed: (){
-              Navigator.pop(context);
-              }, icon: Icon(Icons.arrow_back_ios, size: 25.0, color: Colors.white,),
-            ),
-          ),
 
-          Container(
-            margin: EdgeInsets.only(top: 15.0, left: 20.0, right: 20.0),
-            height: 55.0,
-            child: TextFormField(
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                prefixIcon: Icon(Icons.search, color: HexColor("#C3BDBD"), size: 23.0,),
-                hintText: "Search Here",
-                hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(13.0),
-                  borderSide: BorderSide.none,
+          Row(
+            children: [
+              new GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  margin: EdgeInsets.only(top:40.0,left: 16.0, right: 20.0),
+                  width: 22.0,
+                  height: 25.0,
+                  child: Image(image: AssetImage("images/arrow_back.png"),),
                 ),
               ),
+
+              Expanded(child: SizedBox()),
+
+              Padding(
+                padding: const EdgeInsets.only(top: 35.0),
+                child: Text("Search Category", style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold, color: HexColor("#212529"),),),
+              ),
+
+              Expanded(
+                flex: 2,
+                  child: SizedBox()),
+            ],
+          ),
+
+
+          Container(
+            margin: EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0),
+            height: 50.0,
+            child: Stack(
+              children: [
+                TextFormField(
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    prefixIcon: Icon(Icons.search, color: HexColor("#C3BDBD"), size: 20.0,),
+                    hintText: "Search Category",
+                    hintStyle: TextStyle(fontSize: 13.0, color: Colors.grey, fontWeight: FontWeight.normal),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: HexColor("#212529"), width: 0.5),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    height: 27.0,
+                    width: 27.0,
+                    margin: EdgeInsets.only(right: 20.0, top: 10.0),
+                    decoration: BoxDecoration(
+                      color: HexColor("#5E60CE"),
+                      borderRadius: BorderRadius.all(Radius.circular(14.0)),
+                    ),
+                    child: Icon(Icons.search, color: Colors.white, size: 13.0,),
+                  ),
+                ),
+              ],
             ),
           ),
           SizedBox(
@@ -132,8 +161,8 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
       child: Container(
         height: 500.0,
         margin: EdgeInsets.only(bottom: 20.0),
-        child: FutureBuilder<List<StatesResponseModel>>(
-           future: fetchState(),
+        child: FutureBuilder<List<ServiceTypeResponseModel>>(
+           future: fetchServices(),
            builder: (context, snapshot) {
              if (snapshot.connectionState == ConnectionState.waiting) {
                return Padding(
@@ -141,7 +170,7 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                  child:  Visibility(
                    visible: !isLoadingVisible,
                    child: SpinKitFadingCircle(
-                   color: Colors.white,
+                     color: HexColor("#212529"),
                    size: 40.0,),
                  ),);
              }
@@ -171,7 +200,7 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                            child: Center(
                              child: ElevatedButton(onPressed: () {
 
-                               fetchState();
+                               fetchServices();
                              },
                                child: Text("Try Again", style: TextStyle(fontSize: 14.0),),
                                style: ElevatedButton.styleFrom(
@@ -232,7 +261,7 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
                                minimumSize: Size(200.0, 30.0),
                                // fixedSize: Size(300.0, 50.0),
                                textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal),
-                               elevation: 2,
+                               elevation: 5,
                                shape: RoundedRectangleBorder(
                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),
                                      topRight: Radius.circular(15.0),
@@ -253,34 +282,51 @@ class _StateOfResidenceDialogState extends State<StateOfResidenceDialog> {
 
              }
              else {
-               return ListView.builder(
-                 shrinkWrap: true,
-                 itemCount: snapshot.data!.length,
-                 itemBuilder: (context, index) {
-                   final item = snapshot.data![index];
+               return Padding(
+                 padding: const EdgeInsets.only(top: 10.0 ),
+                 child: ListView.builder(
+                   shrinkWrap: true,
+                   itemCount: snapshot.data!.length,
+                   itemBuilder: (context, index) {
 
-                   return new GestureDetector(
-                     onTap: () {
-                       stateCode = item.state_code;
-                       saveUserDetails();
-                       Navigator.pop(context, item.name);
-                     },
-                     child: Padding(
-                       padding: const EdgeInsets.only(top: 15.0, left: 20.0),
-                       child: Text(item.name, style: TextStyle(color: Colors.white, fontSize: 18.0),),
+                     final item = snapshot.data![index];
+
+                     return new GestureDetector(
+                       onTap: () {
+                          serviceType =  item.serviceType;
+                      Navigator.push(context, MaterialPageRoute(builder: (context){
+                        return ServicesSubCategories(serviceType: serviceType);
+                      }));
+                         // Navigator.pop(context, item.serviceType);
+                       },
+                       child: Container(
+                         height: 55.0,
+                             width: MediaQuery.of(context).size.width,
+                             margin: EdgeInsets.only(top: 10.0, right: 20.0, left: 20.0, bottom: 5.0),
+                         child: Card(
+                           color: Colors.white,
+                           elevation: 2,
+                           shape: RoundedRectangleBorder(
+                             borderRadius: BorderRadius.circular(15.0),
+                           ),
+                     child: Row(
+                       children: [
+                         Padding(
+                           padding: const EdgeInsets.only(left: 30.0),
+                           child: Image(image: AssetImage("images/service_provider_icon.png"), width: 20.0, height: 20.0,),
+                         ),
+                         Padding(
+                           padding: const EdgeInsets.only(left: 20.0),
+                           child: Text(item.serviceType, style: TextStyle(fontSize: 10.0, color: HexColor("#212529")),),
+                         ),
+                       ],
                      ),
-                   );
-
-                   return ListTile(
-                     contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
-                     title: Text(item.name, style: TextStyle(color: Colors.white, fontSize: 16.0),),
-                     onTap: () {
-                       String stateCode = item.state_code;
-                       Navigator.pop(context, item.name);
-                     },
-                       );
-                     },
-                  );
+                         ),
+                       ),
+                     );
+                   },
+                    ),
+               );
                 }
                },
              ),

@@ -9,6 +9,7 @@ import '../../../database/appPrefHelper.dart';
 import '../../../database/saveValues.dart';
 import '../../../dialogs/errorMessageDialog.dart';
 import '../../../dialogs/successMessageDialog.dart';
+import '../../../webService/apiConstant.dart';
 import '../../choiceScreen/choiceScreenPage.dart';
 import '../../forgetPassword/passwordRecovery.dart';
 import 'package:http/http.dart' as http;
@@ -45,8 +46,6 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
     }
   }
 
-  final String apiUrl = "https://server.handiwork.com.ng/api/auth/login/skill-provider";
-
   TextEditingController emailAddressPhoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -73,6 +72,7 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
   Future<void> makePostRequest() async {
     loading();
 
+    final String apiUrl = ApiConstant.serviceProviderLogInApi;
     try {
       final response = await http.post(Uri.parse(apiUrl),
         headers:<String, String>{
@@ -84,19 +84,24 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
         }),
       );
 
+      print("request: " + response.toString());
+      print(response.statusCode);
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         isNotLoading();
+        print('Response Body: ${response.body}');
         // successful post request, handle the response here
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         setState(() {
           token = responseData['token'];
           serviceProviderId = responseData['skillProvider']['id'];
           showModalBottomSheet(
-              isScrollControlled: true,
+              isDismissible: false,
+              enableDrag: false,
               context: context,
               builder: (BuildContext context) {
                 return SuccessMessageDialog(
-                  content: "Service Provider Sign up Successful",
+                  content: "Service Provider Log in Successful",
                   onButtonPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context){
                       return ServiceProviderDashboardPage();
@@ -111,12 +116,14 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
 
       else{
         isNotLoading();
+        print('Response Body: ${response.body}');
         // if the server return an error response
         final Map<String, dynamic> errorData = json.decode(response.body);
         errorMessage = errorData['error'] ?? 'Unknown error occurred';
 
         showModalBottomSheet(
-            isScrollControlled: true,
+            isDismissible: false,
+            enableDrag: false,
             context: context,
             builder: (BuildContext context) {
               return ErrorMessageDialog(
@@ -134,7 +141,8 @@ class _ServiceProviderFragmentState extends State<ServiceProviderFragment> {
       isNotLoading();
       setState(() {
         showModalBottomSheet(
-            isScrollControlled: true,
+            isDismissible: false,
+            enableDrag: false,
             context: context,
             builder: (BuildContext context) {
               return ErrorMessageDialog(

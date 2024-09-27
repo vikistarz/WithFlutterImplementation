@@ -1,6 +1,5 @@
 import 'dart:convert';
-
-import 'package:cross_platform_application/screens/CustomerSignUp/customerSignUpResponseModel.dart';
+import 'package:cross_platform_application/webService/apiConstant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -44,8 +43,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
     }
   }
 
-  final String apiUrl = "https://server.handiwork.com.ng/api/customers/create";
-
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailAddressController = TextEditingController();
@@ -84,6 +81,8 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
 
     loading();
 
+    final String apiUrl = ApiConstant.customerSignUpApi;
+
     try {
       final response = await http.post(Uri.parse(apiUrl),
           headers:<String, String>{
@@ -99,15 +98,20 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
           }),
       );
 
+      print("request: " + response.toString());
+      print(response.statusCode);
+
       if (response.statusCode == 201) {
         isNotLoading();
+        print('Response Body: ${response.body}');
       // successful post request, handle the response here
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         setState(() {
           token = responseData['token'];
           customerWalletId = responseData['wallet']['id'];
           showModalBottomSheet(
-              isScrollControlled: true,
+              isDismissible: false,
+              enableDrag: false,
               context: context,
               builder: (BuildContext context) {
                 return SuccessMessageDialog(
@@ -126,30 +130,34 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
 
       else{
         isNotLoading();
+        print('Response Body: ${response.body}');
         // if the server return an error response
         final Map<String, dynamic> errorData = json.decode(response.body);
         errorMessage = errorData['error'] ?? 'Unknown error occurred';
-
-        showModalBottomSheet(
-            isScrollControlled: true,
-            context: context,
-            builder: (BuildContext context) {
-              return ErrorMessageDialog(
-                content: errorMessage,
-                onButtonPressed: () {
-                  Navigator.of(context).pop();
-                  // Add any additional action here
-                  isNotLoading();
-                },
-              );
-            });
+        setState(() {
+          showModalBottomSheet(
+              isDismissible: false,
+              enableDrag: false,
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorMessageDialog(
+                  content: errorMessage,
+                  onButtonPressed: () {
+                    Navigator.of(context).pop();
+                    // Add any additional action here
+                    isNotLoading();
+                  },
+                );
+              });
+        });
       }
     }
     catch (e) {
       isNotLoading();
       setState(() {
         showModalBottomSheet(
-            isScrollControlled: true,
+            isDismissible: false,
+            enableDrag: false,
             context: context,
             builder: (BuildContext context) {
               return ErrorMessageDialog(
