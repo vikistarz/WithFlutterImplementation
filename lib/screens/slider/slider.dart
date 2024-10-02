@@ -1,9 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cross_platform_application/screens/serviceProviderSignUp/ui/serviceProviderUploadImage.dart';
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
-import '../logIn/logIn.dart';
+import '../../customerWallet/customerWallet.dart';
+import '../logIn/ui/logIn.dart';
+import '../portfolioPage.dart';
 
 
 class SliderPage extends StatefulWidget {
@@ -29,7 +32,7 @@ class _SliderPageState extends State<SliderPage> {
                            child: CarouselSlider(items: [
                              Container(
                                    decoration:  BoxDecoration(
-                                     image: DecorationImage(image: AssetImage("images/slider_hammer.jpg"), ),
+                                     image: DecorationImage(image: AssetImage("images/slider_hammer.jpg"),),
                                    ),
                                   // child: Align(
                                   //   alignment: Alignment.bottomLeft,
@@ -90,6 +93,7 @@ class _SliderPageState extends State<SliderPage> {
                                // slider container properties
                                options: CarouselOptions(
                                  height: MediaQuery.sizeOf(context).height,
+
                                  autoPlay: true,
                                  aspectRatio: 16/9,
                                  autoPlayCurve: Curves.fastOutSlowIn,
@@ -112,7 +116,7 @@ class _SliderPageState extends State<SliderPage> {
                        child: InkWell(
                          onTap: (){
                            Navigator.push(context, MaterialPageRoute(builder: (context){
-                             return LogInPage();
+                               return LogInPage();
                            }));
                          },
                          child: Container(

@@ -1,9 +1,23 @@
-import 'package:cross_platform_application/screens/choiceScreen/choiceScreenPage.dart';
 import'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import '../../../dialogs/logOutDialog.dart';
+import '../customerProfile.dart';
 
-class CustomerAccountFragment extends StatelessWidget {
+
+class CustomerAccountFragment extends StatefulWidget {
   const CustomerAccountFragment({super.key});
+
+  @override
+  State<CustomerAccountFragment> createState() => _CustomerAccountFragmentState();
+}
+
+class _CustomerAccountFragmentState extends State<CustomerAccountFragment> {
+
+  void _openLogOutDialog(){
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context, builder: (ctx) => LogOutDialog());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +68,9 @@ class CustomerAccountFragment extends StatelessWidget {
 
                   InkWell(
                     onTap: (){
-
+                       Navigator.push(context, MaterialPageRoute(builder: (context){
+                         return CustomerProfilePage();
+                       }));
                     },
                     child: Align(
                       alignment: Alignment.topLeft,
@@ -200,9 +216,9 @@ class CustomerAccountFragment extends StatelessWidget {
 
 
 
-            InkWell(
+            new GestureDetector(
               onTap: (){
-
+                _openLogOutDialog();
               },
               child: Align(
                 alignment: Alignment.topCenter,

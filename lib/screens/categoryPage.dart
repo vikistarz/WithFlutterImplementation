@@ -1,5 +1,4 @@
-import 'package:cross_platform_application/screens/dashboard.dart';
-import 'package:cross_platform_application/screens/profile.dart';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
@@ -75,7 +74,7 @@ class CategoryPage extends StatelessWidget {
                       ),
                       new GestureDetector(
                         onTap: (){
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => Profile()));
+
                         },
                         child: Container(
                           height: 50.0,
@@ -156,7 +155,7 @@ class CategoryPage extends StatelessWidget {
           children: [
           new GestureDetector(
              onTap: (){
-               _navigateToNextScreen(context);
+
              },
              child: Padding(
                  padding: EdgeInsets.only(left: 0.0, bottom: 3.0),
@@ -271,8 +270,4 @@ class CategoryPage extends StatelessWidget {
       // )
     );
   }
-
-   void _navigateToNextScreen(BuildContext context){
-     Navigator.of(context).push(MaterialPageRoute(builder: (context) => Dashboard()));
-   }
 }
