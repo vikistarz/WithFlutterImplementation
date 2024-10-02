@@ -116,7 +116,7 @@ class _SliderPageState extends State<SliderPage> {
                        child: InkWell(
                          onTap: (){
                            Navigator.push(context, MaterialPageRoute(builder: (context){
-                               return PortfolioPage();
+                               return LogInPage();
                            }));
                          },
                          child: Container(

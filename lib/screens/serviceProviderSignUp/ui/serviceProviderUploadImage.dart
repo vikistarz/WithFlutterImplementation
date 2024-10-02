@@ -37,7 +37,7 @@ class ServiceProviderUploadImagePage extends StatefulWidget {
 
 class _ServiceProviderUploadImagePageState extends State<ServiceProviderUploadImagePage> {
 
-  Dio dio = new Dio();
+
 
   bool uploadButtonVisible = false;
   bool isLoadingVisible = true;

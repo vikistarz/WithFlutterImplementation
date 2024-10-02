@@ -82,19 +82,17 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
                  height: 70.0,
                  margin: EdgeInsets.only(left: 40.0, top: 30.0),
                  child: CircleAvatar(
-                   backgroundColor: Colors.white,
+                   backgroundColor: HexColor("#E4DFDF"),
                    radius: 40.0,
                    child:  CircleAvatar(
                      backgroundColor: HexColor("#E4DFDF"),
                      radius: 35.0,
-                     // backgroundImage: _image == null ? null : FileImage(
-                     //     File(_image!.path)
-                     // ),
-                     child: Image(image: AssetImage("images/profile_white.png"),
+                     backgroundImage:  NetworkImage("https://server.handiwork.com.ng/"+widget.imagePath),
+                     ),
                      ) ,
                    ),
-                 ),
-               ),
+
+
 
                Stack(
                  children: [
@@ -134,7 +132,7 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
                          margin: EdgeInsets.only(top: 40.0, left: 5.0),
                        width: 90.0,
                          child:
-                         TextMarquee("Emiewo Victor", spaceSize: 100, style: TextStyle(color: HexColor("#353535"),fontSize: 18.0, fontWeight: FontWeight.normal),),
+                         TextMarquee(widget.firstName, spaceSize: 100, style: TextStyle(color: HexColor("#353535"),fontSize: 18.0, fontWeight: FontWeight.normal),),
                        ),
 
                        Container(
@@ -146,7 +144,7 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
 
                        Padding(
                          padding: const EdgeInsets.only(top: 40.0, left: 8.0, right: 8.0),
-                         child: Text("Car Rewire", style: TextStyle(color: HexColor("#5E60CE"),fontSize: 11.0, fontWeight: FontWeight.normal),),
+                         child: Text(widget.subCategory, style: TextStyle(color: HexColor("#5E60CE"),fontSize: 11.0, fontWeight: FontWeight.normal),),
                        ),
                      ],
                    ),
@@ -156,7 +154,7 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
                      child: Row(
                        children: [
                          Image(image: AssetImage("images/location_icon.png"),width: 11.0, height: 11.0,),
-                         Text("Ikeja", style: TextStyle(color: HexColor("#353535"),fontSize: 10.0, fontWeight: FontWeight.normal),),
+                         Text(widget.city, style: TextStyle(color: HexColor("#353535"),fontSize: 10.0, fontWeight: FontWeight.normal),),
 
                        ],
                      ),
@@ -194,7 +192,7 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
                     
                      Padding(
                        padding: const EdgeInsets.only(top: 3.0),
-                       child: Text("7am - 3pm", style: TextStyle(color: HexColor("#353535"),fontSize: 13.0, fontWeight: FontWeight.bold),),
+                       child: Text(widget.openingHour, style: TextStyle(color: HexColor("#353535"),fontSize: 13.0, fontWeight: FontWeight.bold),),
                      ),
                       ],
                     ),
