@@ -80,6 +80,7 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
                Container(
                  width: 70.0,
                  height: 70.0,
+
                  margin: EdgeInsets.only(left: 40.0, top: 30.0),
                  child: CircleAvatar(
                    backgroundColor: HexColor("#E4DFDF"),
