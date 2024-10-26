@@ -1,8 +1,21 @@
+import 'dart:convert';
+
 import'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../database/appPrefHelper.dart';
+import '../../../database/saveValues.dart';
+import '../../../dialogs/errorMessageDialog.dart';
+import '../../../dialogs/successMessageDialog.dart';
+import '../../../webService/apiConstant.dart';
+
 class ReviewFragment extends StatefulWidget {
-  const ReviewFragment({super.key});
+  ReviewFragment({Key? key, required this.serviceProviderId}) : super(key: key);
+
+ int serviceProviderId;
+
 
   @override
   State<ReviewFragment> createState() => _ReviewFragmentState();
@@ -10,7 +23,123 @@ class ReviewFragment extends StatefulWidget {
 
 class _ReviewFragmentState extends State<ReviewFragment> {
 
+  final _formKey = GlobalKey<FormState>();
+  bool _isButtonEnabled = false;
+  String token = "";
+  String errorMessage = "";
+  int? customerId;
+  int ratingValue = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    getSavedValue();
+  }
+
+  getSavedValue() async  {
+    SaveValues mySaveValues = SaveValues();
+    customerId = await mySaveValues.getInt(AppPreferenceHelper.SERVICE_PROVIDER_ID);
+  }
+
+  void _validateFormField() {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isButtonEnabled = true;
+      });
+    } else {
+      setState(() {
+        _isButtonEnabled = false;
+      });
+    }
+  }
+
   final commentController = TextEditingController();
+
+  Future<void> postComment() async {
+
+    final String apiUrl = ApiConstant.baseUri + 'skill-provider-reviews/create-review';
+
+    try {
+      final response = await http.post(Uri.parse(apiUrl),
+        headers:<String, String>{
+          "Content-type": "application/json"
+        },
+        body: jsonEncode(<String, dynamic>{
+          "skillProviderId": widget.serviceProviderId,
+          "customerId": customerId,
+          "rating": ratingValue,
+          "comment": commentController.text,
+        }),
+      );
+
+      print("request: " + response.toString());
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+
+        print('Response Body: ${response.body}');
+        // successful post request, handle the response here
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        setState(() {
+          commentController.text = "";
+          ratingValue = 0;
+
+          showModalBottomSheet(
+              isDismissible: false,
+              enableDrag: false,
+              context: context,
+              builder: (BuildContext context) {
+                return SuccessMessageDialog(
+                  content: "Your review sent successfully",
+                  onButtonPressed: () {
+                    Navigator.of(context).pop();
+                    // Add any additional action here
+                  },
+                );
+              });
+        });
+      }
+
+      else{
+        print('Response Body: ${response.body}');
+        // if the server return an error response
+        final Map<String, dynamic> errorData = json.decode(response.body);
+        errorMessage = errorData['error'] ?? 'Unknown error occurred';
+        setState(() {
+          showModalBottomSheet(
+              isDismissible: false,
+              enableDrag: false,
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorMessageDialog(
+                  content: errorMessage,
+                  onButtonPressed: () {
+                    Navigator.of(context).pop();
+                    // Add any additional action here
+                  },
+                );
+              });
+        });
+      }
+    }
+    catch (e) {
+      setState(() {
+        showModalBottomSheet(
+            isDismissible: false,
+            enableDrag: false,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: "Sorry no internet Connection",
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                },
+              );
+            });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +180,9 @@ class _ReviewFragmentState extends State<ReviewFragment> {
                       itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
                       itemBuilder: (context,_) => Icon(Icons.star, color: HexColor("#FFC107"),),
                       onRatingUpdate: (rating){
-
+                        setState(() {
+                          ratingValue = rating as int; // Get the selected rating value
+                        });
                       },
                     itemSize: 15.0,
                     unratedColor: Colors.grey[300],
@@ -60,28 +191,41 @@ class _ReviewFragmentState extends State<ReviewFragment> {
               ],
             ),
 
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Container(
-                height: 80.0,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                  border: Border.all(color: HexColor("#B5B3B3"), width: 2.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 5.0, right: 5, top: 5.0),
-                  child: TextFormField(
-                    controller: commentController,
-                    maxLines: null,
-                    minLines: 2,
-                    keyboardType:TextInputType.multiline,
-                    decoration: InputDecoration(
-                        hintStyle: TextStyle(color: HexColor("#C3BDBD"), fontSize: 12.0, fontWeight: FontWeight.normal),
-                        border: InputBorder.none
+            Form(
+              key: _formKey,
+              onChanged: _validateFormField,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: TextFormField(
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a comment';
+                    }
+                    else{
+                      return null; // Return null if the input is valid
+                    }
+                  },
+                  controller: commentController,
+                  keyboardType:TextInputType.text,
+                  decoration: InputDecoration(
+
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: HexColor("#B5B3B3"), width: 2.0),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: HexColor("#B5B3B3"), width: 1.0),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 10.0),
+                    counterText: '',
                   ),
+                  maxLines: 2,
+                  maxLength: 100,
+                  style: TextStyle(color: HexColor("#212529"), fontSize: 14.0, fontWeight: FontWeight.normal),
                 ),
               ),
             ),
@@ -89,9 +233,13 @@ class _ReviewFragmentState extends State<ReviewFragment> {
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: Center(
-                child: ElevatedButton(onPressed: () {
+                child: ElevatedButton(onPressed: _isButtonEnabled
+                    ? () {
+                  // Action to be taken on button press
+                  postComment();
 
-                },
+                }
+                    : null,
                   child: Text("Comment", style: TextStyle(fontSize: 14.0),),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: HexColor("#212529"), padding: EdgeInsets.all(10.0),

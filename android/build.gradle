@@ -6,6 +6,12 @@ allprojects {
 }
 
 rootProject.buildDir = '../build'
+classpath 'com.android.tools.build:gradle:7.0.0'
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }

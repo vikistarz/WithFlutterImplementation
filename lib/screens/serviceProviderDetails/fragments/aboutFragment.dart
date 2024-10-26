@@ -1,8 +1,17 @@
 import'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-class AboutFragment extends StatelessWidget {
-  const AboutFragment({super.key});
+class AboutFragment extends StatefulWidget {
+   AboutFragment({Key? key, required this.skills,
+    required this.about}) : super(key: key);
 
+    String about, skills;
+
+
+  @override
+  State<AboutFragment> createState() => _AboutFragmentState();
+}
+
+class _AboutFragmentState extends State<AboutFragment> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,7 +42,7 @@ class AboutFragment extends StatelessWidget {
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.only(top: 10.0, left: 35.0, right: 35.0),
-                child: Text("hfhfh fkjfkfkkf nhfjfjf jfkfk fjfjfCustomer Ratings dhdjhfdj dbdfh", style: TextStyle(color: HexColor("#212529"),fontSize: 14.0, fontWeight: FontWeight.normal),),
+                child: Text(widget.about == null ? "" : "${widget.about}", style: TextStyle(color: HexColor("#212529"),fontSize: 14.0, fontWeight: FontWeight.normal),),
               ),
             ),
 
@@ -56,7 +65,7 @@ class AboutFragment extends StatelessWidget {
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.only(top: 10.0, left: 35.0, right: 35.0, bottom: 25.0),
-                child: Text("Customer Ratings dhfdhfhf hgdhhdh hdfjfj hfhfh hfhjfhj hfhfh dhdfhfdh fnjfj", style: TextStyle(color: HexColor("#212529"),fontSize: 14.0, fontWeight: FontWeight.normal),),
+                child: Text(widget.skills == null ? "" : "${widget.skills}", style: TextStyle(color: HexColor("#212529"),fontSize: 14.0, fontWeight: FontWeight.normal),),
               ),
             ),
           ]

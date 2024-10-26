@@ -1,5 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../database/appPrefHelper.dart';
+import '../../../database/saveValues.dart';
+import '../../../dialogs/errorMessageDialog.dart';
+import '../../../dialogs/successMessageDialog.dart';
+import '../../../webService/apiConstant.dart';
+import '../customerDashboard.dart';
 class CustomerFirstNameEditDialog extends StatefulWidget {
   const CustomerFirstNameEditDialog({super.key});
 
@@ -9,7 +20,154 @@ class CustomerFirstNameEditDialog extends StatefulWidget {
 
 class _CustomerFirstNameEditDialogState extends State<CustomerFirstNameEditDialog> {
 
+  final _formKey = GlobalKey<FormState>();
+  bool isContinueVisible = true;
+  bool isLoadingVisible = true;
+  bool passwordVisible =  false;
+  String? firstName;
+  String errorMessage = "";
+  int? customerId;
+
   final firstNameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    getSavedValue();
+  }
+
+  getSavedValue() async  {
+    SaveValues mySaveValues = SaveValues();
+    customerId = await mySaveValues.getInt(AppPreferenceHelper.CUSTOMER_ID);
+    firstName = await mySaveValues.getString(AppPreferenceHelper.FIRST_NAME);
+    setState(() {
+      firstNameController.text = firstName!;
+      // fetchUserData(customerId!);
+    });
+  }
+
+  // Function to validate the form and update button state
+  void _validateFormField() {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        // _isSaveButtonVisible = true;
+      });
+    } else {
+      setState(() {
+        // _isSaveButtonVisible = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    super.dispose();
+  }
+
+  void loading(){
+    setState(() {
+      isLoadingVisible = false;
+    });
+  }
+
+  void isNotLoading(){
+    setState(() {
+      isLoadingVisible = true;
+    });
+  }
+
+
+  Future<void> updateCustomerFirstName(int id) async {
+    loading();
+
+    final String apiUrl = ApiConstant.baseUri + 'customers/updateCustomerRecord/$id';
+
+    try {
+      final response = await http.patch(Uri.parse(apiUrl),
+        headers:<String, String>{
+          "Content-type": "application/json"
+        },
+        body: jsonEncode(<String, dynamic>{
+          "firstName" :  firstNameController.text
+        }),
+      );
+
+      print("request: " + response.toString());
+      print(response.statusCode);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        isNotLoading();
+        print('Response Body: ${response.body}');
+        // successful post request, handle the response here
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        setState(() {
+
+          // firstName = responseData['firstName'];
+
+          showModalBottomSheet(
+              isDismissible: false,
+              enableDrag: false,
+              context: context,
+              builder: (context) {
+                return SuccessMessageDialog(
+                  content: "First name updated successfully",
+                  onButtonPressed: () {
+                    Navigator.of(context).pop();
+
+                    setState(() {
+                      isContinueVisible = !isContinueVisible;
+                    });
+
+                  },
+                );
+              });
+        });
+      }
+
+      else{
+        isNotLoading();
+        // if the server return an error response
+        final Map<String, dynamic> errorData = json.decode(response.body);
+        errorMessage = errorData['error'] ?? 'Unknown error occurred';
+
+        showModalBottomSheet(
+            isDismissible: false,
+            enableDrag: false,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: errorMessage,
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+      }
+    }
+    catch (e) {
+      isNotLoading();
+      setState(() {
+        showModalBottomSheet(
+            isDismissible: false,
+            enableDrag: false,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: "Sorry no internet Connection",
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +211,23 @@ class _CustomerFirstNameEditDialogState extends State<CustomerFirstNameEditDialo
 
                 Expanded(child: SizedBox(),),
 
+                Visibility(
+                  visible: !isLoadingVisible,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: SpinKitFadingCircle(
+                      color: HexColor("#212529"),
+                      size: 25.0,
+                    ),
+                  ),
+                ),
+
                 new GestureDetector(
                   onTap: (){
-                    Navigator.pop(context, firstNameController.text);
+                    updateCustomerFirstName(customerId!);
                   },
                   child: Container(
-                      width: 70.0,
+                      width: 50.0,
                       height: 30.0,
                       margin: EdgeInsets.only(right: 20.0),
                     child: Align(
@@ -71,30 +240,57 @@ class _CustomerFirstNameEditDialogState extends State<CustomerFirstNameEditDialo
                   ),
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 40.0, left: 16.0, right: 16.0),
-                  child: Container(
-                    height: 100.0,
-                    decoration: BoxDecoration(
-                      color: HexColor("#F6F6F6"),
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 16.0),
-                      child: TextFormField(
-                        controller: firstNameController,
-                        keyboardType:TextInputType.name,
-                        maxLength: 15,
-                        decoration: InputDecoration(
-                            hintStyle: TextStyle(color: HexColor("#C3BDBD"), fontSize: 14.0, fontWeight: FontWeight.bold),
-                            border: InputBorder.none,
-                          counterText: ''
+                Form(
+                  key: _formKey,
+                  onChanged: _validateFormField,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 40.0, left: 16.0, right: 16.0),
+                    child: TextFormField(
+                      validator: (value) {
+                        final regex = RegExp(r'^[a-zA-Z]+$');
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter First name';
+                        }
+                        if (value.length < 2) {
+                          return 'Please enter a valid name with at least two alphabetic characters.';
+                        }
+                        if (!regex.hasMatch(value)) {
+                          return 'Please enter only letters';
+                        }
+                        else{
+                          return null; // Return null if the input is valid
+                        }
+                      },
+                      controller: firstNameController,
+                      keyboardType:TextInputType.name,
+                      decoration: InputDecoration(
+                      filled: true,
+                        fillColor: HexColor("#F6F6F6"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide.none,
                         ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 40.0, horizontal: 16.0) ,
+                        counterText: '',
                       ),
+                      style: TextStyle(color: Colors.black, fontSize: 14.0, fontWeight: FontWeight.normal),
                     ),
                   ),
                 ),
 
+                Visibility(
+                  visible: !isContinueVisible,
+                  child: new GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context, firstNameController.text);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 50.0),
+                      height: 30.0,
+                      child: Text("Continue", style: TextStyle(color: HexColor("#2945DD"), fontSize: 25.0, fontWeight: FontWeight.bold),),
+                    ),
+                  ),
+                ),
 
               ],
             ),

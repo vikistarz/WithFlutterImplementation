@@ -1,12 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:text_marquee/text_marquee.dart';
+import '../../database/saveValues.dart';
+import '../../dialogs/errorMessageDialog.dart';
+import '../../webService/apiConstant.dart';
 import '../scheduleAppointment/scheduleAppointment.dart';
 import 'fragments/aboutFragment.dart';
 import 'fragments/photoFragment.dart';
 import 'fragments/reviewFragment.dart';
+import 'package:http/http.dart' as http;
 
 
 class ServiceProviderDetailsPage extends StatefulWidget {
@@ -30,6 +37,136 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
   bool isVisible =  true;
   bool isPhotoVisible = true;
   bool isReviewVisible = true;
+  bool isVerifiedVisible = true;
+  bool isNotVerifiedVisible = true;
+  String roundedValue = "";
+  // double? averageRating;
+  String errorMessage = "";
+  bool isLoadingVisible = true;
+
+
+  void loading(){
+    setState(() {
+      isLoadingVisible = false;
+    });
+  }
+
+  void isNotLoading(){
+    setState(() {
+      isLoadingVisible = true;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      fetchAverageRatings(widget.id);
+      showVerified();
+    });
+    // widget.verified == "accept"? "Last Name" : "$capitalisedLastName"
+  }
+
+  Future<void> _refresh() async {
+    // Simulate a network request or any async task
+    await Future.delayed(Duration(seconds: 2));
+
+    // Add a new item to the list after refreshing
+    setState(() {
+      fetchAverageRatings(widget.id);
+      // items.add("Item ${items.length + 1}");
+    });
+  }
+
+  Future<void> fetchAverageRatings(int id) async {
+    loading();
+    final String apiUrl = ApiConstant.baseUri + 'skill-provider-reviews/averageRating/$id';
+
+    try {
+      final response = await http.get(
+          Uri.parse(apiUrl));
+
+      print("request: " + response.toString());
+      print(response.statusCode);
+
+
+      if (response.statusCode == 200) {
+        isNotLoading();
+        // Parse the JSON response
+        final data = json.decode(response.body);
+        print('Response Body: ${response.body}');
+
+        // Extract specific fields from the JSON
+        double average_rating = data['reviews']['averageRating'];
+
+        // Update the state with the extracted data
+        setState(() {
+          if(average_rating == 0){
+            roundedValue = "0.0";
+          }
+          else{
+            roundedValue = average_rating.toStringAsFixed(1);
+          }
+
+        });
+
+      } else {
+        isNotLoading();
+        print('Response Body: ${response.body}');
+        // If the response code is not 200, show error
+        final data = json.decode(response.body);
+
+        // Extract specific fields from the JSON
+        errorMessage = data['error'];
+        setState(() {
+          setState(() {
+            showModalBottomSheet(
+                isDismissible: false,
+                enableDrag: false,
+                context: context,
+                builder: (BuildContext context) {
+                  return ErrorMessageDialog(
+                    content: errorMessage,
+                    onButtonPressed: () {
+                      Navigator.of(context).pop();
+                      // Add any additional action here
+                    },
+                  );
+                });
+          });
+        });
+      }
+    } catch (error) {
+      isNotLoading();
+      print('Error: $error');
+      // Handle any exceptions during the HTTP request
+      setState(() {
+        // showModalBottomSheet(
+        //     isDismissible: false,
+        //     enableDrag: false,
+        //     context: context,
+        //     builder: (BuildContext context) {
+        //       return ErrorMessageDialog(
+        //         content: "Sorry no internet Connection",
+        //         onButtonPressed: () {
+        //           Navigator.of(context).pop();
+        //           // Add any additional action here
+        //         },
+        //       );
+        //     });
+      });
+    }
+  }
+
+
+  void showVerified(){
+    if(widget.verified == "accept"){
+      isVerifiedVisible = false;
+    }
+    else{
+      isNotVerifiedVisible = false;
+    }
+  }
 
  void photo(){
    isPhotoVisible = false;
@@ -49,8 +186,23 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
     isReviewVisible =  true;
   }
 
+ // Output: 4.57
+
+  String capitalize(String text) {
+    if (text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final capitalisedFirstName  = capitalize(widget.firstName);
+    final capitalisedLastName  = capitalize(widget.lastName);
+    final capitalisedCity  = capitalize(widget.city);
+    final capitalisedSubcategory  = capitalize(widget.subCategory);
+    final capitalisedAboutMe  = capitalize(widget.about);
+    final capitalisedSkills  = capitalize(widget.skills);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -70,7 +222,13 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
         title: Text("Service Provider Profile", style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold, color: HexColor("#212529"),),),
         centerTitle: true,
       ),
-     body: SingleChildScrollView(
+     body: RefreshIndicator(
+    onRefresh: _refresh,
+    color: Colors.white,
+    backgroundColor: Colors.grey,
+    displacement: 40.0,
+    strokeWidth: 3.0,
+    child: SingleChildScrollView(
        scrollDirection: Axis.vertical,
        child: Column(
          mainAxisAlignment: MainAxisAlignment.start,
@@ -98,33 +256,42 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
                Stack(
                  children: [
 
-                   Padding(
-                     padding: const EdgeInsets.only(top:12.0, bottom: 30.0, right: 3.0),
-                     child: Image(image: AssetImage("images/verify_icon.png"),width: 24.0, height: 24.0,),
+                   Visibility(
+                     visible: !isVerifiedVisible,
+                     child: Padding(
+                       padding: const EdgeInsets.only(top:12.0, bottom: 30.0, right: 3.0),
+                       child: Image(image: AssetImage("images/verify_icon.png"),width: 24.0, height: 24.0,),
+                     ),
                    ),
 
                    // recomended
-                   Container(
-                    height: 18.0,
-                     width: 80.0,
-                     margin: EdgeInsets.only(top:20.0,left:25.0,bottom: 30.0),
-                     decoration: BoxDecoration(
-                       color: HexColor("#BFE4F9"),
-                       borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                   Visibility(
+                     visible: !isVerifiedVisible,
+                     child: Container(
+                      height: 18.0,
+                       width: 80.0,
+                       margin: EdgeInsets.only(top:20.0,left:25.0,bottom: 30.0),
+                       decoration: BoxDecoration(
+                         color: HexColor("#BFE4F9"),
+                         borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                       ),
+                       child: Center(child: Text("Recomended", style: TextStyle(color: HexColor("#353535"),fontSize: 8.0, fontWeight: FontWeight.bold),)),
                      ),
-                     child: Center(child: Text("Recomended", style: TextStyle(color: HexColor("#353535"),fontSize: 8.0, fontWeight: FontWeight.bold),)),
                    ),
 
                    // not verified
-                   Container(
-                     height: 18.0,
-                     width: 80.0,
-                     margin: EdgeInsets.only(top:20.0,left:25.0,bottom: 30.0),
-                     decoration: BoxDecoration(
-                       color: HexColor("#F1B5B5"),
-                       borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                   Visibility(
+                     visible: !isNotVerifiedVisible,
+                     child: Container(
+                       height: 18.0,
+                       width: 80.0,
+                       margin: EdgeInsets.only(top:20.0,left:25.0,bottom: 30.0),
+                       decoration: BoxDecoration(
+                         color: HexColor("#F1B5B5"),
+                         borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                       ),
+                       child: Center(child: Text("Not Verified", style: TextStyle(color: HexColor("#353535"),fontSize: 8.0, fontWeight: FontWeight.bold),)),
                      ),
-                     child: Center(child: Text("Not Verified", style: TextStyle(color: HexColor("#353535"),fontSize: 8.0, fontWeight: FontWeight.bold),)),
                    ),
 
                    Row(
@@ -133,7 +300,7 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
                          margin: EdgeInsets.only(top: 40.0, left: 5.0),
                        width: 90.0,
                          child:
-                         TextMarquee(widget.firstName, spaceSize: 100, style: TextStyle(color: HexColor("#353535"),fontSize: 18.0, fontWeight: FontWeight.normal),),
+                         TextMarquee(capitalisedFirstName + " " + capitalisedLastName, spaceSize: 100, style: TextStyle(color: HexColor("#353535"),fontSize: 18.0, fontWeight: FontWeight.normal),),
                        ),
 
                        Container(
@@ -145,7 +312,7 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
 
                        Padding(
                          padding: const EdgeInsets.only(top: 40.0, left: 8.0, right: 8.0),
-                         child: Text(widget.subCategory, style: TextStyle(color: HexColor("#5E60CE"),fontSize: 11.0, fontWeight: FontWeight.normal),),
+                         child: Text(capitalisedSubcategory, style: TextStyle(color: HexColor("#5E60CE"),fontSize: 11.0, fontWeight: FontWeight.normal),),
                        ),
                      ],
                    ),
@@ -155,7 +322,7 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
                      child: Row(
                        children: [
                          Image(image: AssetImage("images/location_icon.png"),width: 11.0, height: 11.0,),
-                         Text(widget.city, style: TextStyle(color: HexColor("#353535"),fontSize: 10.0, fontWeight: FontWeight.normal),),
+                         Text(capitalisedCity, style: TextStyle(color: HexColor("#353535"),fontSize: 10.0, fontWeight: FontWeight.normal),),
 
                        ],
                      ),
@@ -212,9 +379,31 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
                      padding: const EdgeInsets.only(top: 10.0),
                      child: Text("Customer Ratings", style: TextStyle(color: HexColor("#5E60CE"),fontSize: 13.0, fontWeight: FontWeight.normal),),
                         ),
-                        Padding(
-                     padding: const EdgeInsets.only(top: 3.0),
-                     child: Text("4.0/5", style: TextStyle(color: HexColor("#FFC107"),fontSize: 13.0, fontWeight: FontWeight.bold),),
+                        Visibility(
+                          visible: isLoadingVisible,
+                          child: Row(
+                            children: [
+
+                              Expanded(child:SizedBox()),
+
+                              Padding(
+                              padding: const EdgeInsets.only(top: 3.0),
+                              child: Text(roundedValue == null ? "0" : "$roundedValue", style: TextStyle(color: HexColor("#FFC107"), fontSize: 13.0, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+
+
+
+                             Padding(
+                             padding: const EdgeInsets.only(top: 3.0),
+                             child: Text("/5", style: TextStyle(color: HexColor("#FFC107"), fontSize: 13.0, fontWeight: FontWeight.bold),
+                                ),
+                                    ),
+
+                                Expanded(child:SizedBox()),
+
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -371,7 +560,7 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
           children: [
             Visibility(
               visible:  isVisible,
-              child: AboutFragment(),
+              child: AboutFragment(skills: capitalisedSkills == null ? "" : "$capitalisedSkills", about: capitalisedAboutMe == null ? "" : "$capitalisedAboutMe"),
             ),
 
             Visibility(
@@ -381,13 +570,15 @@ class _ServiceProviderDetailsPageState extends State<ServiceProviderDetailsPage>
 
             Visibility(
               visible:  !isReviewVisible,
-              child: ReviewFragment(),
+              child: ReviewFragment(serviceProviderId: widget.id,),
             ),
           ],
         ),
       ),
+            SizedBox(height: 100.0,)
           ],
        ),
+     ),
      ),
     );
   }

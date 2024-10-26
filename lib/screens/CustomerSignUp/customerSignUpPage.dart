@@ -184,26 +184,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
 
   }
 
-
-  // void saveGetUserDetails() async {
-  //
-  //   SaveValues mySaveValues = SaveValues();
-  //   await mySaveValues.saveString(AppPreferenceHelper.FIRST_NAME, firstNameController.text);
-  //   await mySaveValues.saveString(AppPreferenceHelper.LAST_NAME, lastNameController.text);
-  //   await mySaveValues.saveString(AppPreferenceHelper.EMAIL_ADDRESS, emailAddressController.text);
-  //
-  //   String? firstNameValue = await mySaveValues.getString(AppPreferenceHelper.FIRST_NAME);
-  //   String? lastNameValue = await mySaveValues.getString(AppPreferenceHelper.LAST_NAME);
-  //   String? emailValue = await mySaveValues.getString(AppPreferenceHelper.EMAIL_ADDRESS);
-  //
-  //   setState(() {
-  //     firstName = firstNameValue;
-  //     lastNameController.text = lastNameValue!;
-  //     emailAddressController.text = emailValue!;
-  //   });
-  //
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -234,7 +214,7 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
               validator: (value) {
                 final regex = RegExp(r'^[a-zA-Z]+$');
                 if (value == null || value.isEmpty) {
-                  return 'Please enter Last name';
+                  return 'Please enter First name';
                 }
                 if (value.length < 2) {
                   return 'Please enter a valid name with at least two alphabetic characters.';
