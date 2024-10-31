@@ -6,13 +6,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:text_marquee/text_marquee.dart';
-import '../../database/saveValues.dart';
-import '../../dialogs/errorMessageDialog.dart';
-import '../../webService/apiConstant.dart';
-import '../scheduleAppointment/scheduleAppointment.dart';
-import 'fragments/aboutFragment.dart';
-import 'fragments/photoFragment.dart';
-import 'fragments/reviewFragment.dart';
+import '../../../database/saveValues.dart';
+import '../../../dialogs/errorMessageDialog.dart';
+import '../../../webService/apiConstant.dart';
+import '../../scheduleAppointment/scheduleAppointment.dart';
+import '../fragments/aboutFragment.dart';
+import '../fragments/photoFragment.dart';
+import '../fragments/reviewFragment.dart';
 import 'package:http/http.dart' as http;
 
 

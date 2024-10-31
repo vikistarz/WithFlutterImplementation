@@ -127,8 +127,8 @@ class _ServiceProviderProfilePageState extends State<ServiceProviderProfilePage>
         String service_type = data['skillProvider']['serviceType'];
         String sub_category = data['skillProvider']['subCategory'];
         String opening_hour = data['skillProvider']['openingHour'];
-        String abouts = data['skillProvider']['about'];
-        String skills = data['skillProvider']['skills'];
+        String abouts = data['skillProvider']['about'] ?? 'about';
+        String skills = data['skillProvider']['skills']  ?? 'Skills';
         String image_path = data['skillProvider']['imagePath'];
 
         String save_image_path = "https://server.handiwork.com.ng/" + image_path;
@@ -182,6 +182,7 @@ class _ServiceProviderProfilePageState extends State<ServiceProviderProfilePage>
         });
       }
     } catch (error) {
+      print('Error: $error');
       // Handle any exceptions during the HTTP request
       isNotLoading();
       setState(() {
@@ -275,14 +276,14 @@ class _ServiceProviderProfilePageState extends State<ServiceProviderProfilePage>
         child: Stack(
           children: [
 
-            Align(
-              alignment: Alignment.bottomCenter,
+            Padding(
+              padding: const EdgeInsets.only(top: 100.0),
               child: Visibility(
-                  visible: !isLoadingVisible,
-                  child: SpinKitFadingCircle(
-                    color: HexColor("#212529"),
-                    size: 40.0,
-                  )
+                    visible: !isLoadingVisible,
+                    child: SpinKitFadingCircle(
+                      color: HexColor("#212529"),
+                      size: 40.0,
+                    ),
               ),
             ),
 

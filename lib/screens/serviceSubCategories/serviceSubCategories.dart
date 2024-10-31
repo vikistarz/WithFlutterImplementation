@@ -1,4 +1,4 @@
-import 'package:cross_platform_application/screens/serviceProviderDetails/details.dart';
+import 'package:cross_platform_application/screens/serviceProviderDetails/ui/details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -239,6 +239,7 @@ class _ServicesSubCategoriesState extends State<ServicesSubCategories> {
                           return Padding(
                             padding: const EdgeInsets.only(top: 10.0 ),
                             child: ListView.builder(
+                              reverse: true,
                               shrinkWrap: true,
                               itemCount: snapshot.data!.length,
                               itemBuilder: (context, index) {
@@ -325,7 +326,7 @@ class _ServicesSubCategoriesState extends State<ServicesSubCategories> {
                                                     return ServiceProviderDetailsPage(firstName: item.firstName, lastName: item.lastName, email: item.email,
                                                       phone: item.phone, id: item.id, stateOfResidence: item.stateOfResidence, city: item.city, serviceType: item.serviceType,
                                                       officeAddress: item.address, subCategory: item.subCategory, openingHour: item.openingHour, verified: item.isVerified,
-                                                      imagePath: item.imagePath, skills: item.skills ?? "Skill", about: item.about ?? "About");
+                                                      imagePath: item.imagePath, skills: item.skills ?? " ", about: item.about ?? " ");
                                                   }));
                                                 },
                                                   child: Text("View Profile", style: TextStyle(fontSize: 11.0),),

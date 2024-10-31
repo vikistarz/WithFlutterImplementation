@@ -5,7 +5,7 @@ import'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 import '../logIn/ui/logIn.dart';
-import '../portfolioPage.dart';
+
 
 
 class SliderPage extends StatefulWidget {

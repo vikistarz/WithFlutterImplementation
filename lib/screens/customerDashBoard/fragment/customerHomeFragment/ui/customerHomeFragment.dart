@@ -11,7 +11,7 @@ import '../../../../../database/appPrefHelper.dart';
 import '../../../../../database/saveValues.dart';
 import '../../../../../dialogs/errorMessageDialog.dart';
 import '../../../../../webService/apiConstant.dart';
-import '../../../../serviceProviderDetails/details.dart';
+import '../../../../serviceProviderDetails/ui/details.dart';
 import '../../../../serviceSubCategories/serviceSubCategories.dart';
 import '../dialog/searchServiceProviderDialog.dart';
 import 'package:http/http.dart' as http;
