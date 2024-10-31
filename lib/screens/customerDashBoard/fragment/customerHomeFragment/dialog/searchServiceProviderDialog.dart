@@ -159,7 +159,6 @@ class _SearchServiceProviderDialogState extends State<SearchServiceProviderDialo
 
     Expanded(
       child: Container(
-        height: 500.0,
         margin: EdgeInsets.only(bottom: 20.0),
         child: FutureBuilder<List<ServiceTypeResponseModel>>(
            future: fetchServices(),

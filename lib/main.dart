@@ -9,6 +9,7 @@ import 'package:hexcolor/hexcolor.dart';
 void main() {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       systemNavigationBarColor: HexColor("#212529"),
+
   systemNavigationBarIconBrightness: Brightness.light));
 
   runApp(MyStarz());

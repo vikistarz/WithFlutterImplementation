@@ -1,12 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 
+import '../../database/appPrefHelper.dart';
+import '../../database/saveValues.dart';
+import '../../dialogs/errorMessageDialog.dart';
 import '../../dialogs/logOutDialog.dart';
+import '../../webService/apiConstant.dart';
 import 'fragment/serviceProviderAccountFragment.dart';
 import 'fragment/serviceProviderHomeFragment.dart';
 import 'fragment/serviceProviderPortfolioFragment.dart';
+import 'package:http/http.dart' as http;
+
 class ServiceProviderDashboardPage extends StatefulWidget {
   const ServiceProviderDashboardPage({super.key});
 
@@ -16,13 +24,109 @@ class ServiceProviderDashboardPage extends StatefulWidget {
 
 class _ServiceProviderDashboardPageState extends State<ServiceProviderDashboardPage> {
 
+  int pageIndex = 0;
+  int? serviceProviderId ;
+  String errorMessage = "";
+  String firstName = "";
+  String lastName = "";
+  String emailAddress = "";
+
+  @override
+  void initState() {
+    super.initState();
+    getSavedValue();
+  }
+
+  getSavedValue() async  {
+    SaveValues mySaveValues = SaveValues();
+    serviceProviderId = await mySaveValues.getInt(AppPreferenceHelper.SERVICE_PROVIDER_ID);
+    setState(() {
+      fetchUserData(serviceProviderId!);
+    });
+  }
+
+  Future<void> fetchUserData(int id) async {
+    final String apiUrl = ApiConstant.baseUri + 'skill-providers/view/$id';
+
+    try {
+      final response = await http.get(
+          Uri.parse(apiUrl));
+
+      print("request: " + response.toString());
+      print(response.statusCode);
+
+
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        final data = json.decode(response.body);
+        print('Response Body: ${response.body}');
+
+        // Extract specific fields from the JSON
+        String first_name = data['skillProvider']["firstName"];
+        String last_name = data['skillProvider']['lastName'];
+        String email_address = data['skillProvider']['email'];
+
+        // Update the state with the extracted data
+        setState(() {
+
+          firstName = first_name;
+          lastName = last_name;
+          emailAddress = email_address;
+
+        });
+
+      } else {
+        print('Response Body: ${response.body}');
+        // If the response code is not 200, show error
+        final data = json.decode(response.body);
+
+        // Extract specific fields from the JSON
+        errorMessage = data['error'];
+        setState(() {
+          setState(() {
+            showModalBottomSheet(
+                isDismissible: false,
+                enableDrag: false,
+                context: context,
+                builder: (BuildContext context) {
+                  return ErrorMessageDialog(
+                    content: errorMessage,
+                    onButtonPressed: () {
+                      Navigator.of(context).pop();
+                      // Add any additional action here
+                    },
+                  );
+                });
+          });
+        });
+      }
+    } catch (error) {
+      // Handle any exceptions during the HTTP request
+      setState(() {
+        showModalBottomSheet(
+            isDismissible: false,
+            enableDrag: false,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: "Sorry no internet Connection",
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                },
+              );
+            });
+      });
+    }
+  }
+
+
   void _openLogOutDialog(){
     showModalBottomSheet(
         isScrollControlled: true,
         context: context, builder: (ctx) => LogOutDialog());
   }
 
-  int pageIndex = 0;
 
   final pages = [
     const ServiceProviderHomeFragment(),
@@ -30,8 +134,18 @@ class _ServiceProviderDashboardPageState extends State<ServiceProviderDashboardP
     const ServiceProviderAccountFragment(),
   ];
 
+  String capitalize(String text) {
+    if (text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final capitalisedFirstName  = capitalize(firstName);
+    final capitalisedLastName  = capitalize(lastName);
+    final capitalisedEmail  = capitalize(emailAddress);
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async{
@@ -67,12 +181,12 @@ class _ServiceProviderDashboardPageState extends State<ServiceProviderDashboardP
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 20.0, right: 5.0, top:40.0 ),
-                  child: Text("Emiewo Victor", style: TextStyle(color: HexColor("#212529"), fontSize: 13.0, fontWeight: FontWeight.bold), ),
+                  child: Text(firstName + "" + lastName == null ? "" : "${capitalisedFirstName + " " + capitalisedLastName}", style: TextStyle(color: HexColor("#212529"), fontSize: 13.0, fontWeight: FontWeight.bold), ),
                 ),
 
                 Padding(
                   padding: const EdgeInsets.only(left: 20.0, right: 5.0, top:5.0 ),
-                  child: Text("Emiewovictor@gmail.com", style: TextStyle(color: HexColor("#212529"), fontSize: 13.0, fontWeight: FontWeight.bold),),
+                  child: Text(emailAddress == null ? "" : "$capitalisedEmail", style: TextStyle(color: HexColor("#212529"), fontSize: 13.0, fontWeight: FontWeight.bold),),
                 ),
                 Container(
                   height: 1.0,

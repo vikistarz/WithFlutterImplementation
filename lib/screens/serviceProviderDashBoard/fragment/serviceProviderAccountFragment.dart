@@ -1,7 +1,16 @@
+import 'dart:convert';
+
 import 'package:cross_platform_application/screens/serviceProviderDashBoard/serviceProviderProfile.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import '../../../database/appPrefHelper.dart';
+import '../../../database/saveValues.dart';
+import '../../../dialogs/errorMessageDialog.dart';
 import '../../../dialogs/logOutDialog.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../webService/apiConstant.dart';
+
 class ServiceProviderAccountFragment extends StatefulWidget {
   const ServiceProviderAccountFragment({super.key});
 
@@ -11,14 +20,151 @@ class ServiceProviderAccountFragment extends StatefulWidget {
 
 class _ServiceProviderAccountFragmentState extends State<ServiceProviderAccountFragment> {
 
+  bool isLoadingVisible = true;
+
+  int? serviceProviderId;
+  String errorMessage = "";
+  String firstName = "";
+  String lastName = "";
+  String city = "";
+  String subCategory = "";
+  String imagePath = "";
+
+  @override
+  void initState() {
+    super.initState();
+    getSavedValue();
+  }
+
+  getSavedValue() async  {
+    SaveValues mySaveValues = SaveValues();
+    serviceProviderId = await mySaveValues.getInt(AppPreferenceHelper.SERVICE_PROVIDER_ID);
+    setState(() {
+      fetchUserData(serviceProviderId!);
+    });
+  }
+
+  void loading(){
+    setState(() {
+      isLoadingVisible = false;
+    });
+  }
+
+  void isNotLoading(){
+    setState(() {
+      isLoadingVisible = true;
+    });
+  }
+
+  Future<void> fetchUserData(int id) async {
+    loading();
+    final String apiUrl = ApiConstant.baseUri + 'skill-providers/view/$id';
+
+    try {
+      final response = await http.get(
+          Uri.parse(apiUrl));
+
+      print("request: " + response.toString());
+      print(response.statusCode);
+
+
+      if (response.statusCode == 200) {
+        isNotLoading();
+        // Parse the JSON response
+        final data = json.decode(response.body);
+        print('Response Body: ${response.body}');
+
+        // Extract specific fields from the JSON
+        String first_name = data['skillProvider']["firstName"];
+        String last_name = data['skillProvider']['lastName'];
+
+        String citi = data['skillProvider']["city"];
+        // String office_streets = data['skillProvider']['street'];
+        String sub_category = data['skillProvider']['subCategory'];
+        String image_path = data['skillProvider']['imagePath'];
+        String save_image_path = "https://server.handiwork.com.ng/" + image_path;
+
+        // Update the state with the extracted data
+        setState(() {
+
+          firstName = first_name;
+          lastName = last_name;
+          city = citi;
+          subCategory = sub_category;
+          imagePath = save_image_path;
+
+        });
+
+      } else {
+        isNotLoading();
+        print('Response Body: ${response.body}');
+        // If the response code is not 200, show error
+        final data = json.decode(response.body);
+
+        // Extract specific fields from the JSON
+        errorMessage = data['error'];
+        setState(() {
+          setState(() {
+            showModalBottomSheet(
+                isDismissible: false,
+                enableDrag: false,
+                context: context,
+                builder: (BuildContext context) {
+                  return ErrorMessageDialog(
+                    content: errorMessage,
+                    onButtonPressed: () {
+                      Navigator.of(context).pop();
+                      // Add any additional action here
+                      isNotLoading();
+                    },
+                  );
+                });
+          });
+        });
+      }
+    } catch (error) {
+      // Handle any exceptions during the HTTP request
+      isNotLoading();
+      setState(() {
+        showModalBottomSheet(
+            isDismissible: false,
+            enableDrag: false,
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorMessageDialog(
+                content: "Sorry no internet Connection",
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                  // Add any additional action here
+                  isNotLoading();
+                },
+              );
+            });
+      });
+    }
+  }
+
   void _openLogOutDialog(){
     showModalBottomSheet(
         isScrollControlled: true,
         context: context, builder: (ctx) => LogOutDialog());
   }
 
+
+  String capitalize(String text) {
+    if (text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    final capitalisedFirstName  = capitalize(firstName);
+    final capitalisedLastName  = capitalize(lastName);
+    final capitalisedAddress  = capitalize(city);
+    final capitalisedSubcategory  = capitalize(subCategory);
     return Scaffold(
       backgroundColor: HexColor("#f4f4f4"),
       body: SingleChildScrollView(
@@ -62,9 +208,9 @@ class _ServiceProviderAccountFragmentState extends State<ServiceProviderAccountF
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 10.0),
-                        child: Text("Emiewo Victor",style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize:15.0,),),
+                        child: Text(firstName + "" + lastName == null ? "" : "${capitalisedFirstName+ " " + capitalisedLastName}",style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize:15.0,),),
                       ),
-                      Text("Baking",style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize:13.0,),),
+                      Text(subCategory == null ? "" : "$capitalisedSubcategory",style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize:13.0,),),
                     ],
                   ),
                 ),
@@ -79,7 +225,7 @@ class _ServiceProviderAccountFragmentState extends State<ServiceProviderAccountF
                   radius: 30.0,
                   child:  CircleAvatar(
                     backgroundColor: HexColor("#E4DFDF"),
-                    backgroundImage: AssetImage("images/profile_white.png"),
+                    backgroundImage: NetworkImage(imagePath),
                     radius: 29.0,
                   ),
                 ),
@@ -145,7 +291,7 @@ class _ServiceProviderAccountFragmentState extends State<ServiceProviderAccountF
 
                   Padding(
                     padding: const EdgeInsets.only(top: 20, left: 5.0, right: 20.0, bottom: 15.0),
-                    child:Text("5, Tunji Tope Hill, abule Egba, Lagos",style: TextStyle(color: HexColor("#212529"), fontWeight: FontWeight.bold, fontSize:11.0,),),
+                    child:Text(city == null ? "" : "$capitalisedAddress",style: TextStyle(color: HexColor("#212529"), fontWeight: FontWeight.bold, fontSize:11.0,),),
                   ),
 
                 ],
