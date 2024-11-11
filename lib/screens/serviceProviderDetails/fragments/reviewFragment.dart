@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cross_platform_application/screens/serviceProviderDetails/getReviewModel/CustomerReviewResponseModel.dart';
+import 'package:cross_platform_application/screens/serviceProviderDetails/ui/getRatingsReview.dart';
 import'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -342,39 +343,46 @@ class _ReviewFragmentState extends State<ReviewFragment> {
               ),
             ),
 
-      Container(
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.only(top: 10.0, right: 5.0, left: 5.0),
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(5.0)),
-            boxShadow: [
-              BoxShadow(
-                color: HexColor("#C3BDBD"),
-                blurRadius: 1,
-                spreadRadius: 1,
-                offset: Offset(1,1),
+      new GestureDetector(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context){
+             return GetRatingsReviewPage(serviceProviderId: widget.serviceProviderId,);
+          }));
+        },
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          margin: EdgeInsets.only(top: 10.0, right: 5.0, left: 5.0),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(5.0)),
+              boxShadow: [
+                BoxShadow(
+                  color: HexColor("#C3BDBD"),
+                  blurRadius: 1,
+                  spreadRadius: 1,
+                  offset: Offset(1,1),
+                ),
+              ],
+          ),
+          child:  Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0, top: 15.0, bottom: 15.0),
+                child: Text("Service Provider Rating & Reviews", style: TextStyle(color: HexColor("#212529"), fontSize: 14.0),),
               ),
-            ],
-        ),
-        child:  Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 10.0, top: 15.0, bottom: 15.0),
-              child: Text("Service Provider Rating & Reviews", style: TextStyle(color: HexColor("#212529"), fontSize: 14.0),),
-            ),
 
-            Expanded(
-                child: SizedBox()
-            ),
-            
-            Padding(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: Icon(Icons.arrow_forward_ios_outlined, color: Colors.black, size: 17.0,),
-              )
-            ],
-           ),
-        ),
+              Expanded(
+                  child: SizedBox()
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(right: 20.0),
+                child: Icon(Icons.arrow_forward_ios_outlined, color: Colors.black, size: 17.0,),
+                )
+              ],
+             ),
+          ),
+      ),
             SizedBox(height: 10.0),
 
             Container(

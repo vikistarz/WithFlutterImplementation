@@ -1,10 +1,13 @@
 
+import 'package:cross_platform_application/screens/customerDashBoard/customerDashboard.dart';
+import 'package:cross_platform_application/screens/logIn/ui/logIn.dart';
 import 'package:cross_platform_application/screens/serviceProviderSignUp/ui/serviceProviderUploadImage.dart';
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
-import '../logIn/ui/logIn.dart';
+
+
 
 
 
@@ -115,7 +118,8 @@ class _SliderPageState extends State<SliderPage> {
                        child: InkWell(
                          onTap: (){
                            Navigator.push(context, MaterialPageRoute(builder: (context){
-                               return LogInPage();
+                              return LogInPage();
+                             // return CustomerDashboardPage();
                            }));
                          },
                          child: Container(

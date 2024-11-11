@@ -26,6 +26,17 @@ class _ServicesSubCategoriesState extends State<ServicesSubCategories> {
    bool isNoResultVisible = true;
    bool isVerified = true;
    bool isNotVerified = true;
+   bool isSearchBarVisible = true;
+
+   TextEditingController _searchController = TextEditingController();
+   List<FilterServiceResponseModel> _items = [];
+   List<FilterServiceResponseModel> _filteredItems = [];
+
+   @override
+   void initState() {
+     super.initState();
+     _loadItems();
+   }
    
 
    void loading(){
@@ -68,6 +79,45 @@ class _ServicesSubCategoriesState extends State<ServicesSubCategories> {
 
    }
 
+   Future<void> _loadItems() async {
+     try {
+       final items = await fetchSubCategories(widget.serviceType);
+       setState(() {
+         _items = items;
+         _filteredItems = items;
+         loading();
+       });
+     } catch (e) {
+       setState(() {
+         loading();
+       });
+       print("Error loading items: $e");
+     }
+   }
+
+   void _filterItems(String query) {
+     if (query.isEmpty) {
+       setState(() {
+         _filteredItems = _items;
+       });
+     } else {
+       setState(() {
+         _filteredItems = _items
+             .where((item) => item.serviceType.toLowerCase().contains(query.toLowerCase()))
+             .toList();
+       });
+     }
+   }
+
+   String capitalize(String text) {
+     if (text.isEmpty) {
+       return text;
+     }
+     return text[0].toUpperCase() + text.substring(1).toLowerCase();
+   }
+
+
+
    @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,6 +157,54 @@ class _ServicesSubCategoriesState extends State<ServicesSubCategories> {
            ],
             ),
           ),
+
+          Stack(
+            children: [
+             Container(
+                  height: 40.0,
+                  margin: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
+                  child: TextFormField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      prefixIcon: Icon(Icons.search, color: HexColor("#C3BDBD"), size: 22.0,),
+                      hintText: "Search Sub-category",
+                      hintStyle: TextStyle(fontSize: 13.0, color: Colors.grey, fontWeight: FontWeight.normal),
+                      // Customize label color
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: HexColor("#212529"), width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),// Border color when not focused
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: HexColor("#212529"), width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),// Same border color when focused
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: HexColor("#212529"), width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),// General border color
+                      ),
+                    ),
+                    // onChanged: (query) => _filterItems(query),
+                  ),
+              ),
+
+              Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                  height: 23.0,
+                  width: 23.0,
+                  margin: EdgeInsets.only(right: 40.0, top: 28.0),
+                  decoration: BoxDecoration(
+                    color: HexColor("#5E60CE"),
+                    borderRadius: BorderRadius.all(Radius.circular(11.0)),
+                  ),
+                  child: Icon(Icons.search, color: Colors.white, size: 12.0,),
+                ),
+              ),
+            ],
+          ),
+
 
           Expanded(
             child: Stack(
@@ -237,7 +335,7 @@ class _ServicesSubCategoriesState extends State<ServicesSubCategories> {
                         }
                         else {
                           return Padding(
-                            padding: const EdgeInsets.only(top: 10.0 ),
+                            padding: const EdgeInsets.only(top: 20.0 ),
                             child: ListView.builder(
                               reverse: true,
                               shrinkWrap: true,
@@ -245,6 +343,8 @@ class _ServicesSubCategoriesState extends State<ServicesSubCategories> {
                               itemBuilder: (context, index) {
 
                                 final item = snapshot.data![index];
+                                final capitalisedFirstName  = capitalize(item.firstName);
+                                final capitalisedLastName  = capitalize(item.lastName);
 
                                 if(item.isVerified == 'accept'){
                                    isVerified = false;
@@ -304,7 +404,7 @@ class _ServicesSubCategoriesState extends State<ServicesSubCategories> {
                                               ),
                                               Padding(
                                                 padding: const EdgeInsets.only(left: 20.0),
-                                                child: Text(item.firstName + " " + " " + item.lastName, style: TextStyle(fontSize: 15.0, color: HexColor("#212529")),),
+                                                child: Text(capitalisedFirstName + " " + " " + capitalisedLastName, style: TextStyle(fontSize: 15.0, color: HexColor("#212529")),),
                                               ),
                                             ],
                                           ),
