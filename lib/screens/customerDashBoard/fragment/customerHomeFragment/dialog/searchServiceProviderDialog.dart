@@ -36,6 +36,17 @@ class _SearchServiceProviderDialogState extends State<SearchServiceProviderDialo
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  TextEditingController _searchController = TextEditingController();
+  List<ServiceTypeResponseModel> _items = [];
+  List<ServiceTypeResponseModel> _filteredItems = [];
+
+
 
   Future<List<ServiceTypeResponseModel>> fetchServices() async {
     loading();
@@ -48,6 +59,7 @@ class _SearchServiceProviderDialogState extends State<SearchServiceProviderDialo
     if (response.statusCode == 200) {
       print('Response Body: ${response.body}');
       List<dynamic> items = json.decode(response.body);
+
       return items.map((json) => ServiceTypeResponseModel.fromJson(json)).toList();
 
     }
@@ -72,6 +84,37 @@ class _SearchServiceProviderDialogState extends State<SearchServiceProviderDialo
       throw Exception('Failed to load items');
     }
   }
+
+  Future<void> _loadItems() async {
+    try {
+      final items = await fetchServices();
+      setState(() {
+        _items = items;
+        _filteredItems = items;
+        loading();
+      });
+    } catch (e) {
+      setState(() {
+       loading();
+      });
+      print("Error loading items: $e");
+    }
+  }
+
+  void _filterItems(String query) {
+    if (query.isEmpty) {
+      setState(() {
+         _filteredItems = _items;
+      });
+    } else {
+      setState(() {
+        _filteredItems = _items
+            .where((item) => item.serviceType.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      });
+    }
+  }
+
 
 
   @override
@@ -117,45 +160,62 @@ class _SearchServiceProviderDialogState extends State<SearchServiceProviderDialo
             ],
           ),
 
-
-          Container(
-            margin: EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0),
-            height: 50.0,
-            child: Stack(
-              children: [
-                TextFormField(
+          Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0),
+                child: TextFormField(
+                  controller: _searchController,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
                     prefixIcon: Icon(Icons.search, color: HexColor("#C3BDBD"), size: 20.0,),
                     hintText: "Search Category",
                     hintStyle: TextStyle(fontSize: 13.0, color: Colors.grey, fontWeight: FontWeight.normal),
+                    // Customize label color
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: HexColor("#212529"), width: 1.0),
+                      borderRadius: BorderRadius.circular(10.0),// Border color when not focused
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: HexColor("#212529"), width: 1.0),
+                      borderRadius: BorderRadius.circular(10.0),// Same border color when focused
+                    ),
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(color: HexColor("#212529"), width: 0.5),
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: HexColor("#212529"), width: 1.0),
+                      borderRadius: BorderRadius.circular(10.0),// General border color
                     ),
                   ),
+                  onChanged: (query) => _filterItems(query),
                 ),
+              ),
 
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    height: 27.0,
-                    width: 27.0,
-                    margin: EdgeInsets.only(right: 20.0, top: 10.0),
-                    decoration: BoxDecoration(
-                      color: HexColor("#5E60CE"),
-                      borderRadius: BorderRadius.all(Radius.circular(14.0)),
-                    ),
-                    child: Icon(Icons.search, color: Colors.white, size: 13.0,),
+              Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                  height: 27.0,
+                  width: 27.0,
+                  margin: EdgeInsets.only(right: 40.0, top: 55.0),
+                  decoration: BoxDecoration(
+                    color: HexColor("#5E60CE"),
+                    borderRadius: BorderRadius.all(Radius.circular(14.0)),
                   ),
+                  child: Icon(Icons.search, color: Colors.white, size: 13.0,),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+
           SizedBox(
             height: 20.0,
           ),
+
+          // _filteredItems.isEmpty
+          //     ? Padding(
+          //       padding: const EdgeInsets.only(top: 150.0),
+          //       child: Center(child: Text('No results found', style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),),
+          //     )
+          //     :
 
     Expanded(
       child: Container(
@@ -285,10 +345,12 @@ class _SearchServiceProviderDialogState extends State<SearchServiceProviderDialo
                  padding: const EdgeInsets.only(top: 10.0 ),
                  child: ListView.builder(
                    shrinkWrap: true,
-                   itemCount: snapshot.data!.length,
+                   // itemCount: snapshot.data!.length,
+                   itemCount: _filteredItems.length,
                    itemBuilder: (context, index) {
 
-                     final item = snapshot.data![index];
+                     // final item = snapshot.data![index];
+                     final item = _filteredItems[index];
 
                      return new GestureDetector(
                        onTap: () {
